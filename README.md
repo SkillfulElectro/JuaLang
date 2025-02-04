@@ -7,6 +7,7 @@ an experimental programming language which is written based on PDAs instead of a
 ## TODO!
 - [x] lexer init
 - [x] function calls
+- [ ] adding error messages 
 - [ ] adding expr
 - [ ] supporting other keywords
 - [ ] bytecode runner
