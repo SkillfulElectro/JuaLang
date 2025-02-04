@@ -2,7 +2,7 @@
 an experimental programming language which is written based on PDAs instead of algorithms like LALR(1) and etc
 
 ## Goal
-- creating an extension system for fun
+- creating an extension system for fun , trying to make Jua as extensible as possible 
 
 ## TODO!
 - [x] lexer init
@@ -12,4 +12,3 @@ an experimental programming language which is written based on PDAs instead of a
 - [ ] bytecode runner
 - [ ] JuaLang Extensions
 
-** for now with an bytecode runner jua can be used as config file **
