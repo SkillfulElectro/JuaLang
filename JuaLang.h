@@ -165,7 +165,7 @@ class JuaLang : public DFAction {
 			break;
 		}
 
-		return DFACTION_SAFE;
+		return { DFACTION_SAFE , DFActionState(0) };
 	}
 
 	DFActionFlow identer_action(
@@ -185,7 +185,7 @@ class JuaLang : public DFAction {
 			break;
 		}
 
-		return DFACTION_SAFE;
+		return { DFACTION_SAFE , DFActionState(0) };
 	}
 
 	DFActionFlow func_action(
@@ -200,7 +200,7 @@ class JuaLang : public DFAction {
 		switch (token.type)
 		{
 		case CONST_DOUBLE: {
-			code << "push" << "," << "#" << get_dfval_str(token.value) << "," << "," << "";
+			code << "push" << " " << "#" << get_dfval_str(token.value) << " " << ";" << " " << ";";
 
 			auto counter = stack.back();
 			stack.pop_back();
@@ -213,7 +213,7 @@ class JuaLang : public DFAction {
 			break;
 		}
 		case CONST_STRING: {
-			code << "push" << "," << get_dfval_str(token.value) << "," << "," << "";
+			code << "push" << " " << get_dfval_str(token.value) << " " << ";" << " " << ";";
 
 			auto counter = stack.back();
 			stack.pop_back();
@@ -230,10 +230,10 @@ class JuaLang : public DFAction {
 			auto res = scopes.back().is_exists(get_dfval_str(token.value));
 
 			if (res.status != JuaScopeStatus::JSCOPE_SUCCESS) {
-				return DFACTION_PANIC;
+				return { DFACTION_PANIC , DFActionState(0) };
 			}
 
-			code << "push" << "," << res.addr << "," << "," << "";
+			code << "push" << " " << res.addr << " " << ";" << " " << ";";
 
 			auto counter = stack.back();
 			stack.pop_back();
@@ -251,7 +251,7 @@ class JuaLang : public DFAction {
 			auto identi = stack.back();
 			stack.pop_back();
 
-			code << "call" << "," << get_dfval_doub(len.value) << ",," << get_dfval_str(identi.value);
+			code << "call" << " " << get_dfval_doub(len.value) << " " << ";"  << " " << get_dfval_str(identi.value);
 			bytecode.push_back(code.str());
 			break;
 		}
@@ -261,7 +261,7 @@ class JuaLang : public DFAction {
 
 		
 
-		return DFACTION_SAFE;
+		return { DFACTION_SAFE , DFActionState(0) };
 	}
 
 protected:
@@ -285,7 +285,7 @@ protected:
 			break;
 		}
 
-		return DFACTION_SAFE;
+		return { DFACTION_SAFE , DFActionState(0) };
 	}
 
 public:
