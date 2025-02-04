@@ -9,7 +9,7 @@
 #include <vector>
 #include <sstream>
 
-#include "DFAction_Types.h"
+#include "../compiler_sys/DFAction_Types.h"
 
 enum DFMatcherResCode {
 	SUCCESS,
