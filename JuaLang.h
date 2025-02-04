@@ -35,8 +35,8 @@ enum DFActionType {
 using DFActionVal = std::variant<std::string, double>;
 
 
-#include "DFMatcher.h"
-#include "DFAction.h"
+#include "compiler_sys/DFMatcher.h"
+#include "lexer_sys/DFAction.h"
 #include "JuaScope.h"
 
 
