@@ -9,7 +9,7 @@
 #include <variant>
 
 enum DFActionState {
-	START , EXPR , IDENTER , FUNC , IDENT_EXPR , EXPR_OPS
+	START , EXPR , IDENTER , FUNC , IDENT_EXPR , EXPR_OPS , EXPR_PARA
 };
 
 enum DFActionType {
@@ -36,8 +36,8 @@ enum DFActionType {
 using DFActionVal = std::variant<std::string, double>;
 
 
-#include "compiler_sys/DFMatcher.h"
-#include "lexer_sys/DFAction.h"
+#include "lexer_sys/DFMatcher.h"
+#include "compiler_sys/DFAction.h"
 #include "JuaScope.h"
 
 
@@ -73,11 +73,13 @@ class JuaLang : public DFAction {
 		DFA expr;
 		expr[EXPR][OPERATOR] = EXPR_OPS;
 		expr[EXPR_OPS][IDENT] = EXPR;
+		expr[EXPR_OPS][CLOSE_PARAN] = EXPR;
 		expr[EXPR_OPS][CONST_DOUBLE] = EXPR;
 		expr[EXPR_OPS][CONST_STRING] = EXPR;
 		this->add_special_dfa(EXPR_OPS, expr);
 		
-
+		DFA expr_para;
+		this->add_special_dfa(EXPR_PARA, expr_para);
 
 		new_dfa(&dfa);
 	}
@@ -448,6 +450,7 @@ class JuaLang : public DFAction {
 					code.str("");
 
 					stack.push_back({ ADDR , addr });
+					stack.push_back(token);
 
 					break;
 				}
@@ -475,6 +478,7 @@ class JuaLang : public DFAction {
 					code.str("");
 
 					stack.push_back({ ADDR , addr });
+					stack.push_back(token);
 
 					break;
 				}
@@ -508,6 +512,7 @@ class JuaLang : public DFAction {
 					code.str("");
 
 					stack.push_back({ ADDR , addr });
+					stack.push_back(token);
 
 					break;
 				}
@@ -570,7 +575,7 @@ class JuaLang : public DFAction {
 			
 
 
-			
+			go_next_index = false;
 			return { DFACTION_BACK_TO_PREV , DFActionState(0) };
 		}
 		}
@@ -589,6 +594,10 @@ class JuaLang : public DFAction {
 
 		switch (token.type)
 		{
+		case CLOSE_PARAN:
+			break;
+		case OP_PARAN:
+			return { DFACTION_GO_TO_SP_DFA , EXPR_PARA };
 		case CONST_DOUBLE: {
 			std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
 
@@ -628,6 +637,35 @@ class JuaLang : public DFAction {
 
 		return { DFACTION_SAFE , DFActionState(0) };
 	}
+
+	DFActionFlow expr_para_action(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index) {
+
+		auto& token = tokens[index_in_tokens];
+
+		switch (token.type)
+		{
+		case CLOSE_PARAN: {
+			auto res = stack.back();
+			stack.pop_back();
+			stack.pop_back();
+
+			stack.push_back(res);
+			
+			go_next_index = false;
+			return { DFActionFlowCode::DFACTION_BACK_TO_PREV , DFActionState(0) };
+		}
+		default:
+
+			stack.push_back({ ASSIGN , "=" });
+			go_next_index = false;
+			return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , EXPR_OPS };
+
+			break;
+		}
+	}
 protected:
 	DFActionFlow action_function(
 		size_t& index_in_tokens
@@ -649,6 +687,8 @@ protected:
 			return expr_ops_action(index_in_tokens, tokens, go_next_index);
 		case EXPR:
 			return expr_action(index_in_tokens, tokens, go_next_index);
+		case EXPR_PARA:
+			return expr_para_action(index_in_tokens, tokens, go_next_index);
 		default:
 			break;
 		}
