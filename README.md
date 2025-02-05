@@ -12,6 +12,7 @@ an experimental programming language which is written based on PDAs instead of a
 - [x] scope creation
 - [ ] adding error messages 
 - [x] adding expr
+- [x] adding parans to expr 
 - [ ] supporting other keywords
 - [ ] bytecode runner
 - [ ] JuaLang Extensions def in bytecode runner
