@@ -94,8 +94,6 @@ public:
 				state = dfa_stack.back().state;
 
 				dfa_stack.pop_back();
-
-				continue;
 			}
 			else if (change_state.code != DFACTION_DO_NOT_CHANGE_STATE) {
 				state =  dfa[state][tokens[index].type];
