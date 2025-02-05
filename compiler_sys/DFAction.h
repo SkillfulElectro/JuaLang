@@ -27,7 +27,7 @@ struct DFActionToken {
 typedef std::unordered_map<DFActionState, std::unordered_map<DFActionType, DFActionState>> DFA;
 
 struct PrevDFAState {
-	DFA* dfa;
+	DFA dfa;
 	DFActionState state;
 };
 
@@ -54,7 +54,9 @@ public:
 		this->machine = states;
 	}
 
-	
+	void add_special_dfa(DFActionState start_state, DFA dfa) {
+		specials_dfa[start_state] = dfa;
+	}
 
 	void run_dfa_on(const std::vector<DFActionToken>& tokens 
 		, const DFActionState& start_state) {
@@ -76,29 +78,29 @@ public:
 			DFActionFlow change_state = action_function(index , tokens , state, next_index);
 
 			if (change_state.code == DFACTION_PANIC) {
+				std::cout << "PANIC";
 				break;
-			}
-			else if (change_state.code != DFACTION_DO_NOT_CHANGE_STATE) {
-				state =  dfa[state][tokens[index].type];
 			}
 			else if (change_state.code == DFACTION_GO_TO_SP_DFA) {
 				dfa_stack.push_back({
-					&dfa , state
+					dfa , state
 					});
 
 				dfa = specials_dfa[change_state.state_name];
 				state = change_state.state_name;
-
-				continue;
 			}
 			else if (change_state.code == DFACTION_BACK_TO_PREV) {
-				dfa = *dfa_stack.back().dfa;
+				dfa = dfa_stack.back().dfa;
 				state = dfa_stack.back().state;
 
 				dfa_stack.pop_back();
 
 				continue;
 			}
+			else if (change_state.code != DFACTION_DO_NOT_CHANGE_STATE) {
+				state =  dfa[state][tokens[index].type];
+			}
+
 
 			if (next_index)
 				++index;
