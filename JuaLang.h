@@ -9,7 +9,7 @@
 #include <variant>
 
 enum DFActionState {
-	START , EXPR , ASSIGN , IDENTER , FUNC
+	START , EXPR , IDENTER , FUNC , IDENT_EXPR , EXPR_OPS
 };
 
 enum DFActionType {
@@ -30,6 +30,7 @@ enum DFActionType {
 	IGNORES,
 	CAMMA,
 	ADDR,
+	ASSIGN,
 };
 
 using DFActionVal = std::variant<std::string, double>;
@@ -61,15 +62,26 @@ class JuaLang : public DFAction {
 	void init_dfaction() {
 		dfa[START][IDENT] = IDENTER;
 		dfa[IDENTER][OP_PARAN] = FUNC;
-		dfa[FUNC][CAMMA] = FUNC;
-		dfa[FUNC][IDENT] = FUNC;
-		dfa[FUNC][CONST_DOUBLE] = FUNC;
-		dfa[FUNC][CONST_STRING] = FUNC;
+		dfa[IDENTER][SEMICOLON] = START;
+
+
+
 		dfa[FUNC][CLOSE_PARAN] = FUNC;
 		dfa[FUNC][SEMICOLON] = START;
 
+
+		DFA expr;
+		expr[EXPR][OPERATOR] = EXPR_OPS;
+		expr[EXPR_OPS][IDENT] = EXPR;
+		expr[EXPR_OPS][CONST_DOUBLE] = EXPR;
+		expr[EXPR_OPS][CONST_STRING] = EXPR;
+		this->add_special_dfa(EXPR_OPS, expr);
+		
+
+
 		new_dfa(&dfa);
 	}
+
 	void init_lexer() {
 		TokenDFA ident;
 		ident.start_state = "0";
@@ -138,7 +150,7 @@ class JuaLang : public DFAction {
 		lexer.create_word_token("*", OPERATOR, false);
 		lexer.create_word_token("+", OPERATOR, false);
 		lexer.create_word_token("-", OPERATOR, false);
-		lexer.create_word_token("=", OPERATOR, false);
+		lexer.create_word_token("=", ASSIGN, false);
 		lexer.create_word_token("while", WHILE, false);
 		lexer.create_word_token("(", OP_PARAN, false);
 		lexer.create_word_token(")", CLOSE_PARAN, false);
@@ -147,6 +159,7 @@ class JuaLang : public DFAction {
 		lexer.create_word_token(";", SEMICOLON, false);
 		lexer.create_word_token(",", CAMMA, false);
 	}
+
 
 	DFActionFlow start_action(
 		size_t& index_in_tokens
@@ -178,8 +191,52 @@ class JuaLang : public DFAction {
 		switch (token.type)
 		{
 		case OP_PARAN: {
-			stack.push_back({ OP_PARAN , 0.0 });
+			go_next_index = false;
 			break;
+		}
+
+		case ASSIGN: {
+			auto identi = stack.back();
+			stack.pop_back();
+
+			std::string addr = std::to_string(scopes.back().get_new_addr(get_dfval_str(identi.value)).addr);
+
+			stack.push_back({ ADDR , addr });
+
+			stack.push_back({
+				ASSIGN , "="
+				});
+			return { DFACTION_GO_TO_SP_DFA , EXPR_OPS };
+		}
+
+		case SEMICOLON: {
+			std::ostringstream code;
+
+			auto token1 = stack.back();
+			stack.pop_back();
+			
+			if (stack.size() > 1) {
+				auto token2 = stack.back();
+				stack.pop_back();
+
+				switch (token2.type)
+				{
+				case ASSIGN: {
+					auto main_addr = stack.back();
+					stack.pop_back();
+
+					code << "=" << " " << get_dfval_str(token1.value) << " " << ";" << " " << get_dfval_str(main_addr.value);
+
+					bytecode.push_back(code.str());
+
+
+					break;
+				}
+				default:
+					stack.push_back(token2);
+					break;
+				}
+			}
 		}
 		default:
 			break;
@@ -197,7 +254,61 @@ class JuaLang : public DFAction {
 
 		std::ostringstream code;
 
+
 		switch (token.type)
+		{
+		case OP_PARAN:
+		{
+			stack.push_back({ OP_PARAN , 0.0 });
+			stack.push_back({ ASSIGN , "=" });
+			return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , EXPR_OPS };
+		}
+		case CAMMA:
+		{
+			auto expr_val = stack.back();
+			stack.pop_back();
+			stack.pop_back();
+
+			auto counter = stack.back();
+			stack.pop_back();
+
+			code << "push" << " " << get_dfval_str(expr_val.value) << " " << ";" << " " << ";";
+			bytecode.push_back(code.str());
+
+			counter.value = get_dfval_doub(counter.value) + 1;
+
+			stack.push_back(counter);
+			stack.push_back({ ASSIGN , "=" });
+
+			return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , EXPR_OPS };
+		}
+		case CLOSE_PARAN: {
+			auto expr_val = stack.back();
+			stack.pop_back();
+			stack.pop_back();
+
+			auto counter = stack.back();
+			stack.pop_back();
+
+			code << "push" << " " << get_dfval_str(expr_val.value) << " " << ";" << " " << ";";
+			bytecode.push_back(code.str());
+
+			counter.value = get_dfval_doub(counter.value) + 1;
+
+			code.str("");
+
+			auto identi = stack.back();
+			stack.pop_back();
+
+			code << "call" << " " << get_dfval_doub(counter.value) << " " << ";" << " " << get_dfval_str(identi.value);
+			bytecode.push_back(code.str());
+			break;
+		}
+		default:
+			break;
+		}
+
+		/*switch (token.type)
 		{
 		case CONST_DOUBLE: {
 			code << "push" << " " << "#" << get_dfval_str(token.value) << " " << ";" << " " << ";";
@@ -257,13 +368,266 @@ class JuaLang : public DFAction {
 		}
 		default:
 			break;
-		}
+		}*/
 
 		
 
 		return { DFACTION_SAFE , DFActionState(0) };
 	}
+	
+	DFActionFlow expr_action(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index) {
 
+		auto& token = tokens[index_in_tokens];
+		auto& prev_op_token = stack[stack.size() - 2];
+
+		if (prev_op_token.type ==  ASSIGN && token.type == OPERATOR) {
+			stack.push_back(token);
+
+			return { DFACTION_SAFE , DFActionState(0) };
+		}
+
+		std::ostringstream code;
+
+		switch (token.type)
+		{
+
+		
+		case OPERATOR: {
+			switch (get_dfval_str(token.value)[0])
+			{
+			case '+':
+				switch (get_dfval_str(prev_op_token.value)[0])
+				{
+				case '-':
+				case '*':
+				case '/':
+				case '+': {
+					std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
+
+					auto oprand2 = stack.back();
+					stack.pop_back();
+					auto op = stack.back();
+					stack.pop_back();
+					auto oprand1 = stack.back();
+					stack.pop_back();
+
+					code << get_dfval_str(op.value) << " " << get_dfval_str(oprand1.value) << " " << get_dfval_str(oprand2.value) << " " << addr;
+					bytecode.push_back(code.str());
+					code.str("");
+
+					stack.push_back({ ADDR , addr });
+
+					break;
+				}
+				default:
+					break;
+				}
+
+				break;
+			case '-':
+				switch (get_dfval_str(prev_op_token.value)[0])
+				{
+				case '-':
+				case '*':
+				case '/':
+				case '+': {
+					std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
+
+					auto oprand2 = stack.back();
+					stack.pop_back();
+					auto op = stack.back();
+					stack.pop_back();
+					auto oprand1 = stack.back();
+					stack.pop_back();
+
+					code << get_dfval_str(op.value) << " " << get_dfval_str(oprand1.value) << " " << get_dfval_str(oprand2.value) << " " << addr;
+					bytecode.push_back(code.str());
+					code.str("");
+
+					stack.push_back({ ADDR , addr });
+
+					break;
+				}
+				default:
+					break;
+				}
+
+				break;
+			case '*':
+				switch (get_dfval_str(prev_op_token.value)[0])
+				{
+				case '*':
+				case '/': {
+					std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
+
+					auto oprand2 = stack.back();
+					stack.pop_back();
+					auto op = stack.back();
+					stack.pop_back();
+					auto oprand1 = stack.back();
+					stack.pop_back();
+
+					code << get_dfval_str(op.value) << " " << get_dfval_str(oprand1.value) << " " << get_dfval_str(oprand2.value) << " " << addr;
+					bytecode.push_back(code.str());
+					code.str("");
+
+					stack.push_back({ ADDR , addr });
+
+					break;
+				}
+				case '-':
+				case '+': {
+					stack.push_back(token);
+
+					break;
+				}
+				default:
+					break;
+				}
+
+				break;
+			case '/':
+				switch (get_dfval_str(prev_op_token.value)[0])
+				{
+				case '*':
+				case '/': {
+					std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
+
+					auto oprand2 = stack.back();
+					stack.pop_back();
+					auto op = stack.back();
+					stack.pop_back();
+					auto oprand1 = stack.back();
+					stack.pop_back();
+
+					code << get_dfval_str(op.value) << " " << get_dfval_str(oprand1.value) << " " << get_dfval_str(oprand2.value) << " " << addr;
+					bytecode.push_back(code.str());
+					code.str("");
+
+					stack.push_back({ ADDR , addr });
+
+					break;
+				}
+				case '+':
+				case '-': {
+					stack.push_back(token);
+
+					break;
+				}
+				default:
+					break;
+				}
+
+				break;
+			default:
+				break;
+			}
+		}
+
+		break;
+		default: {
+
+			DFActionToken tmp_keeper;
+			auto top = stack.back();
+			stack.pop_back();
+
+			for (; top.type != ASSIGN;) {
+				switch (top.type)
+				{
+				case ADDR:
+					tmp_keeper = top;
+					top = stack.back();
+					stack.pop_back();
+					break;
+
+				case OPERATOR: {
+					std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
+
+					auto oprand1 = stack.back();
+					stack.pop_back();
+
+					code << get_dfval_str(top.value) << " " << get_dfval_str(oprand1.value) << " " << get_dfval_str(tmp_keeper.value) << " " << addr;
+					bytecode.push_back(code.str());
+					code.str("");
+					
+					tmp_keeper = {ADDR , addr};
+
+					top = stack.back();
+					stack.pop_back();
+				}
+				default:
+					break;
+				}
+
+				
+			}
+
+			stack.push_back({ ASSIGN , "="});
+			stack.push_back(tmp_keeper);
+			
+
+
+			
+			return { DFACTION_BACK_TO_PREV , DFActionState(0) };
+		}
+		}
+
+		return { DFACTION_SAFE , DFActionState(0) };
+	}
+
+	DFActionFlow expr_ops_action(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index) {
+
+		auto& token = tokens[index_in_tokens];
+
+		std::ostringstream code;
+
+		switch (token.type)
+		{
+		case CONST_DOUBLE: {
+			std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
+
+			code << "=" << " " << "#" << get_dfval_str(token.value) << " " << ";"  << " " << addr;
+			bytecode.push_back(code.str());
+
+			stack.push_back({ADDR , addr});
+
+			break;
+		}
+		case CONST_STRING: {
+			std::string addr = std::to_string(scopes.back().get_new_tmp().addr);
+
+			code << "=" << " " << get_dfval_str(token.value) << " " << ";" << " " << addr;
+			bytecode.push_back(code.str());
+
+			stack.push_back({ ADDR , addr });
+
+			break;
+		}
+		case IDENT: {
+			auto res = scopes.back().is_exists(get_dfval_str(token.value));
+
+			if (res.status == JuaScopeStatus::JSCOPE_NOT_FOUND) {
+				return { DFACTION_PANIC , DFActionState(0) };
+			}
+
+			std::string addr = std::to_string(res.addr);
+
+			stack.push_back({ ADDR , addr });
+
+			break;
+		}
+		default:
+			break;
+		}
+
+		return { DFACTION_SAFE , DFActionState(0) };
+	}
 protected:
 	DFActionFlow action_function(
 		size_t& index_in_tokens
@@ -281,6 +645,10 @@ protected:
 			return identer_action(index_in_tokens, tokens, go_next_index);
 		case FUNC:
 			return func_action(index_in_tokens, tokens, go_next_index);
+		case EXPR_OPS:
+			return expr_ops_action(index_in_tokens, tokens, go_next_index);
+		case EXPR:
+			return expr_action(index_in_tokens, tokens, go_next_index);
 		default:
 			break;
 		}
@@ -301,7 +669,7 @@ public:
 		}
 	}
 
-	void compile(const std::string& buffer) {
+	std::vector<std::string> compile(const std::string& buffer) {
 		size_t index = 0;
 		
 		DFMatcherRes res;
@@ -320,6 +688,8 @@ public:
 		} while (res.status != END_OF_FILE);
 
 		this->run_dfa_on(tokens, START);
+
+		return bytecode;
 	}
 };
 
