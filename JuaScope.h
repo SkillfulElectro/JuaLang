@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+
 enum JuaScopeStatus {
 	JSCOPE_NOT_FOUND,
 	JSCOPE_SUCCESS,
