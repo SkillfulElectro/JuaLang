@@ -9,6 +9,8 @@ an experimental programming language which is written based on PDAs instead of a
 ## TODO!
 - [x] lexer init
 - [x] function calls
+- [x] function return type
+- [x] mixing up functions and expr
 - [x] scope creation
 - [ ] adding error messages 
 - [x] adding expr
@@ -16,4 +18,5 @@ an experimental programming language which is written based on PDAs instead of a
 - [ ] supporting other keywords
 - [ ] bytecode runner
 - [ ] JuaLang Extensions def in bytecode runner
+- [ ] code optimization
 
