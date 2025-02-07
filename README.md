@@ -1,5 +1,5 @@
 # JuaLang
-<img width=10% height =10% src="JuaLang_logo.png" alt="JuaLang Logo" align="right">
+<img src="JuaLang_logo.png" alt="JuaLang Logo" align="right" style="width: 10vw; height: auto;">
 
 an experimental programming language which is written based on PDAs instead of algorithms like LALR(1) and etc
 
