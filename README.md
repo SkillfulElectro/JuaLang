@@ -4,7 +4,9 @@
   </picture>
 </p>
 
-<h1 align="center">JuaLang</h1> 
+<h1 align="center">JuaLang   <picture>
+    <img alt="JuaLang Logo" src="JuaLang_logo.png" style="height:2vh;">
+  </picture></h1> 
 
 an experimental programming language which is written based on PDAs instead of algorithms like LALR(1) and etc
 
