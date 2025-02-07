@@ -1,8 +1,7 @@
-<p align="center" style="height:2vh;width=2vw;">
-  <picture>
-    <img alt="JuaLang Logo" src="JuaLang_logo.png" style="height:2vh;width=2vw;">
-  </picture>
+<p align="center">
+  <img alt="JuaLang Logo" src="JuaLang_logo.png" width="40" height="40">
 </p>
+
 
 <h1 align="center">JuaLang</h1> 
 
