@@ -1,6 +1,6 @@
-<p align="center" style="height:15vh;">
+<p align="center" style="height:10vh;">
   <picture>
-    <img alt="JuaLang Logo" src="JuaLang_logo.png" style="height:15vh;">
+    <img alt="JuaLang Logo" src="JuaLang_logo.png" style="height:10vh;">
   </picture>
 </p>
 
