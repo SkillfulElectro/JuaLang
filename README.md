@@ -1,9 +1,10 @@
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <img src="JuaLang_logo.png" alt="JuaLang Logo" style="max-width: 100px; height: auto;">
-</div>
+<p align="center" style="height:25vh;">
+  <picture>
+    <img alt="JuaLang Logo" src="JuaLang_logo.png" style="height:25vh;">
+  </picture>
+</p>
 
-
-# JuaLang
+<h1 align="center">JuaLang</h1> 
 
 an experimental programming language which is written based on PDAs instead of algorithms like LALR(1) and etc
 
