@@ -1,5 +1,7 @@
-<img src="JuaLang_logo.png" alt="JuaLang Logo" 
-     style="display: block; margin: 0 auto;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <img src="JuaLang_logo.png" alt="JuaLang Logo" style="max-width: 100px; height: auto;">
+</div>
+
 
 # JuaLang
 
