@@ -1,4 +1,5 @@
-<img src="JuaLang_logo.png" alt="JuaLang Logo" align="center">
+<img src="JuaLang_logo.png" alt="JuaLang Logo" 
+     style="display: block; margin: 0 auto;">
 
 # JuaLang
 
