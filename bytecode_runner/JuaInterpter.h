@@ -3,7 +3,7 @@
 #define JUA_INTERPTER
 
 
-
+#include <iostream>
 #include "JuaOprand.h"
 #include "../lexer_sys/DFMatcher.h"
 #include "JuaModule.h"
@@ -85,6 +85,7 @@ public:
 				break;
 			case JUMP:
 				inst_index = instruction.oprand1.get_sizet();
+				--inst_index;
 				break;
 			case JUMPF:
 				// jmpf addr i ;
@@ -93,6 +94,7 @@ public:
 				case DOUBLE:
 					if (v_mem[instruction.oprand1.get_sizet()].get_doub() <= 0) {
 						inst_index = instruction.oprand2.get_sizet();
+						--inst_index;
 
 						break;
 					}
@@ -101,6 +103,7 @@ public:
 				case STRING:
 					if (v_mem[instruction.oprand1.get_sizet()].get_str().length() <= 0) {
 						inst_index = instruction.oprand2.get_sizet();
+						--inst_index;
 
 						break;
 					}
@@ -114,6 +117,7 @@ public:
 				case DOUBLE:
 					if (v_mem[instruction.oprand1.get_sizet()].get_doub() >= 0) {
 						inst_index = instruction.oprand2.get_sizet();
+						--inst_index;
 
 						break;
 					}
@@ -122,6 +126,7 @@ public:
 				case STRING:
 					if (v_mem[instruction.oprand1.get_sizet()].get_str().length() >= 0) {
 						inst_index = instruction.oprand2.get_sizet();
+						--inst_index;
 
 						break;
 					}
@@ -383,7 +388,6 @@ public:
 				++inst_val;
 			}
 			else {
-				std::cout << instruction.job << " " << instruction.oprand1.op_type << " " << instruction.oprand2.op_type << " " << instruction.result.op_type << '\n';
 				instructions.push_back(instruction);
 				inst_val = 0;
 			}
