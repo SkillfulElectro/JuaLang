@@ -22,7 +22,7 @@ an experimental programming language which is written based on PDAs instead of a
 - [x] adding expr
 - [x] adding parans to expr 
 - [ ] supporting other keywords
-- [ ] bytecode runner
+- [x] bytecode runner
 - [ ] JuaLang Extensions def in bytecode runner
 - [ ] code optimization
 
