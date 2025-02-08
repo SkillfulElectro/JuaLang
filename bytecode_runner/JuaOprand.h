@@ -32,7 +32,7 @@ enum DFActionType {
 
 #include <variant>
 #include <string>
-#include "DFAction_Types.h"
+#include "../lexer_sys/DFAction_Types.h"
 
 struct JuaOprand {
 	DFActionType op_type;
