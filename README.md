@@ -5,12 +5,14 @@
 
 <h1 align="center">JuaLang</h1> 
 
-an experimental programming language which is written based on PDAs instead of algorithms like LALR(1) and etc
+an experimental programming language which is written based on custom PDA style algorithm instead of algorithms like LALR(1) and etc
 
-## Goal
-- creating an extension system for fun , trying to make Jua as extensible as possible
-- Jua has function calls but doesn't have function creation :)
+## Why Jua?
+- the first reason is just for having fun ! :)
+- well when i use compiled languages , if i want to extend my final product and let users extend it more -> i need to embed python , js or wasm but well they have so much features which is not needed and we dont want to allow the extension system have them because its so much and etc , that time Jua comes in . Jua is not general propose programming language -> its designed to be a basic language with basic functionality well its functionality is extendable as much as you need !!!
 
+## How to use?
+- Jua comes in some header files to make its static build so much easier !
 
 ## TODO!
 - [x] lexer init
@@ -21,8 +23,8 @@ an experimental programming language which is written based on PDAs instead of a
 - [ ] adding error messages 
 - [x] adding expr
 - [x] adding parans to expr 
-- [ ] supporting other keywords
+- [x] supporting other keywords (while , if)
 - [x] bytecode runner
-- [ ] JuaLang Extensions def in bytecode runner
+- [x] JuaLang Extensions def in bytecode runner
 - [ ] code optimization
 
