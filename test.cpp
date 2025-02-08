@@ -4,5 +4,5 @@
 int main() {
 
 	JuaLang instance;
-	instance.compile("hi = zed() + (4/2) * 3 ; bye(hi,2,4);");
+	std::cout << instance.compile("hi = 10; while (hi - 1) { bye(hi); hi = hi - 1; } return hi;");
 }
