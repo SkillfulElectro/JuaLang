@@ -166,6 +166,7 @@ ret 1 ; ;
 - [x] function return type
 - [x] mixing up functions and expr
 - [x] scope creation
+- [x] local scope creation
 - [ ] adding error messages 
 - [x] adding expr
 - [x] adding parans to expr 
