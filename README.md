@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="JuaLang Logo" src="JuaLang_logo.png" style="width:20vw;height:auto;">
+  <img alt="JuaLang Logo" src="JuaLang_logo.png" style="width:25vw;height:auto;">
 </p>
 
 
