@@ -6,6 +6,11 @@
 
 #include "DFAction_types.h"
 
+enum DFActionReturnVal {
+	ALL_REDUCTIONS_ARE_COMPLETED,
+	FAILED_TO_DO_ALL_REDUCTIONS,
+};
+
 enum DFActionFlowCode {
 	DFACTION_GO_TO_SP_DFA = 1,
 	DFACTION_SAFE = 0,
@@ -45,7 +50,7 @@ protected:
 		, bool& go_next_index
 	) = 0;
 
-public:
+
 	DFAction(DFA* machine = nullptr) {
 		this->machine = machine;
 	}
@@ -58,7 +63,7 @@ public:
 		specials_dfa[start_state] = dfa;
 	}
 
-	void run_dfa_on(const std::vector<DFActionToken>& tokens 
+	DFActionReturnVal run_dfa_on(const std::vector<DFActionToken>& tokens 
 		, const DFActionState& start_state) {
 
 		if (machine == nullptr) {
@@ -103,6 +108,12 @@ public:
 			if (next_index)
 				++index;
 		}
+
+		if (!dfa_stack.empty()) {
+			return FAILED_TO_DO_ALL_REDUCTIONS;
+		}
+
+		return ALL_REDUCTIONS_ARE_COMPLETED;
 	}
 };
 
