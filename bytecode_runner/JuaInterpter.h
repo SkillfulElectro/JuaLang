@@ -84,6 +84,24 @@ public:
 					break;
 				}
 				break;
+
+			case POP: {
+				// pop ; ; addr
+				auto back = stack.back();
+				stack.pop_back();
+			
+				switch (back.type)
+				{
+				case VALUE:
+					v_mem[instruction.result.get_sizet()] = back.get_obj();
+					break;
+				case REF:
+					v_mem[instruction.result.get_sizet()] = *back.get_ptr();
+					break;
+				}
+			
+				break;
+			}
 			case CALL: {
 					std::vector<JuaStackVal> input(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 					v_mem[instruction.result.get_sizet()] = extensions[instruction.oprand1.get_str()]->jua_extension_func(input);
