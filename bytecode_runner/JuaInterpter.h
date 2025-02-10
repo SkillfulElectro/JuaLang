@@ -21,7 +21,7 @@ class JuaInterpter {
 
 	DFMatcher lexer;
 
-	std::vector<JuaOprand> stack;
+	std::vector<JuaStackVal> stack;
 
 	std::unordered_map<size_t, JuaOprand> v_mem;
 
@@ -71,21 +71,21 @@ public:
 				switch (instruction.oprand1.op_type)
 				{
 				case ADDR:
-					stack.push_back(v_mem[instruction.oprand1.get_sizet()]);
+					stack.push_back({ REF , &v_mem[instruction.oprand1.get_sizet()] });
 					break;
 				case DOUBLE: {
-					stack.push_back({ instruction.oprand1.op_type , instruction.oprand1.get_doub() });
+					stack.push_back({ VALUE , JuaOprand{ instruction.oprand1.op_type , instruction.oprand1.get_doub() } });
 
 					break;
 				}
 				case STRING: 
-					stack.push_back({ instruction.oprand1.op_type , instruction.oprand1.get_str() });
+					stack.push_back({ VALUE , JuaOprand{ instruction.oprand1.op_type , instruction.oprand1.get_str() } });
 
 					break;
 				}
 				break;
 			case CALL: {
-					std::vector<JuaOprand> input(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+					std::vector<JuaStackVal> input(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 					v_mem[instruction.result.get_sizet()] = extensions[instruction.oprand1.get_str()]->jua_extension_func(input);
 					stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 
@@ -93,8 +93,20 @@ public:
 			}
 			case RETURN:
 				// ret n ; ;
-				rets.insert(rets.end(), stack.end() - instruction.oprand1.get_sizet(), stack.end());
-				stack.erase(stack.end() - instruction.oprand1.get_sizet(), stack.end());
+				for (size_t i{ 0 }; i < instruction.oprand1.get_sizet(); ++i) {
+					auto back = stack.back();
+					stack.pop_back();
+
+					switch (back.type)
+					{
+					case VALUE:
+						rets.push_back(back.get_obj());
+						break;
+					case REF:
+						rets.push_back(*back.get_ptr());
+						break;
+					}
+				}
 
 				break;
 			case JUMP:
