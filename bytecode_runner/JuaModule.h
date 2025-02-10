@@ -13,7 +13,7 @@ class JuaModule {
 public:
 	JuaModule(const std::string& func_name, JuaInterpter* instance);
 
-	virtual JuaOprand jua_extension_func(std::vector<JuaOprand> oprands) = 0;
+	virtual JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) = 0;
 };
 
 #endif // !JUA_MODULE
