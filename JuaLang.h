@@ -1206,7 +1206,11 @@ public:
 			tokens.push_back(tok);
 		} while (res.status != END_OF_FILE);
 
-		this->run_dfa_on(tokens, START);
+		auto comp_res = this->run_dfa_on(tokens, START);
+
+		if (comp_res == FAILED_TO_DO_ALL_REDUCTIONS) {
+			std::cout << "COMPILATION FAILED !\n";
+		}
 
 		std::string result = "";
 
