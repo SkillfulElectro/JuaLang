@@ -53,6 +53,7 @@ return x , 2 , ...;
 #include "JuaInterpter.h"
 ```
 - after this you can now use JuaModule to create Jua functions which are callabe from Jua side , e.g.:
+- from v2.0.0 jua_extension_func uses JuaStackVal , refer to releases for more details
 ```cpp
 class zed : public JuaModule {
 public:
