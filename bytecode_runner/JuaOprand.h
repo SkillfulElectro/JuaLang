@@ -55,4 +55,22 @@ struct JuaOprand {
 	}
 };
 
+enum JuaStackType {
+	REF,
+	VALUE,
+};
+
+struct JuaStackVal {
+	JuaStackType type;
+	std::variant<JuaOprand, JuaOprand*> value;
+
+	JuaOprand get_obj() {
+		return std::get<JuaOprand>(value);
+	}
+
+	JuaOprand* get_ptr() {
+		return std::get<JuaOprand*>(value);
+	}
+};
+
 #endif // !JUA_OPRAND
