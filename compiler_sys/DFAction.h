@@ -9,6 +9,7 @@
 enum DFActionReturnVal {
 	ALL_REDUCTIONS_ARE_COMPLETED,
 	FAILED_TO_DO_ALL_REDUCTIONS,
+	NULL_MAIN_DFA_PASSED,
 };
 
 enum DFActionFlowCode {
@@ -67,7 +68,7 @@ protected:
 		, const DFActionState& start_state) {
 
 		if (machine == nullptr) {
-			return;
+			return NULL_MAIN_DFA_PASSED;
 		}
 
 		std::vector<PrevDFAState> dfa_stack;
