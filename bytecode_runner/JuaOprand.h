@@ -36,7 +36,7 @@ enum DFActionType {
 
 struct JuaOprand {
 	DFActionType op_type;
-	std::variant<size_t, double, std::string> value;
+	std::variant<size_t, double, std::string , void*> value;
 
 	size_t get_sizet() {
 		return std::get<size_t>(value);
@@ -48,6 +48,10 @@ struct JuaOprand {
 
 	std::string get_str() {
 		return std::get<std::string>(value);
+	}
+
+	void* get_void_ptr() {
+		return std::get<void*>(value);
 	}
 };
 
