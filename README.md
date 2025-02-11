@@ -27,6 +27,7 @@ if (EXPR) {
 }
 ```
 - Jua has native functions , but Jua native functions because of the special behavior of return token does not return value
+- btw Jua functions are inlined
 ```javascript
 function func_name(args) {
 /* stmts */
