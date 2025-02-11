@@ -26,6 +26,12 @@ if (EXPR) {
 /*stmts*/
 }
 ```
+- Jua has native functions , but Jua native functions because of the special behavior of return token does not return value
+```javascript
+function func_name(args) {
+/* stmts */
+}
+``` 
 ```c
 func_name(args ...);
 ```
@@ -33,6 +39,7 @@ func_name(args ...);
 hi = "string data type"
 numeric = 1.2 
 ```
+- Jua native functions does not return value so can't use them in expr
 ```c
 /*EXPR*/
 hi = zed() + (4/2) * 3 ;
