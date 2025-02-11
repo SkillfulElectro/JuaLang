@@ -86,7 +86,7 @@ public:
 	zed test2("bye", &instance);
 ```
 - the functions are now callable with that associated names
-- also if your functions gonna send an object of the class to the Jua system , its possible by casting them to void* and return with VOID type . this type is only for these kind of usages
+- also if your functions gonna send an object of the class to the Jua system , its possible by casting them to void* and return with VOID type . this type is only used for these kind of usages
 ### Jua compiler
 - Jua compiler for
 ```jua
