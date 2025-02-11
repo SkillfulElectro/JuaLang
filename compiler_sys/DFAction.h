@@ -6,7 +6,7 @@
 
 #include "DFAction_types.h"
 
-enum DFActionReturnVal {
+enum DFActionReturnCode {
 	ALL_REDUCTIONS_ARE_COMPLETED,
 	FAILED_TO_DO_ALL_REDUCTIONS,
 	NULL_MAIN_DFA_PASSED,
@@ -35,6 +35,11 @@ typedef std::unordered_map<DFActionState, std::unordered_map<DFActionType, DFAct
 struct PrevDFAState {
 	DFA dfa;
 	DFActionState state;
+};
+
+struct DFActionReturnVal {
+	DFActionReturnCode status;
+	std::vector<PrevDFAState> dfas;
 };
 
 class DFAction {
@@ -68,7 +73,7 @@ protected:
 		, const DFActionState& start_state) {
 
 		if (machine == nullptr) {
-			return NULL_MAIN_DFA_PASSED;
+			return { NULL_MAIN_DFA_PASSED , std::vector<PrevDFAState>() };
 		}
 
 		std::vector<PrevDFAState> dfa_stack;
@@ -111,10 +116,10 @@ protected:
 		}
 
 		if (!dfa_stack.empty()) {
-			return FAILED_TO_DO_ALL_REDUCTIONS;
+			return { FAILED_TO_DO_ALL_REDUCTIONS , dfa_stack };
 		}
 
-		return ALL_REDUCTIONS_ARE_COMPLETED;
+		return {ALL_REDUCTIONS_ARE_COMPLETED, dfa_stack };
 	}
 };
 
