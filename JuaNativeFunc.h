@@ -3,7 +3,7 @@
 #define JUANATIVE_FUNC
 
 #include "JuaLangTypes.h"
-#include "DFMatcher.h"
+
 
 struct JuaCompileOprand {
 	DFActionType op_type;
