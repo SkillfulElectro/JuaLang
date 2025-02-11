@@ -154,7 +154,7 @@ ret 1 ; ;
 		/// adding the main road
 		new_dfa(&dfa);
 ```
-- after defining the main part which the program must follow , you will create sub rows and connect them to it via action_function which you must override
+- after defining the main part which the program must follow , you will create sub roads and connect them to it via action_function which you must override
 - try to create as many as sub road possible , it makes your job so much easier
 - you manage how DFAction is going to work with DFActionFlowCode and go_next_index variables which are going to be passed to your overrided action_function and many more ...
 
