@@ -172,8 +172,8 @@ ret 1 ; ;
 
 ## TODO!
 - [x] lexer init
-- [ ] Jua native function creation
-- [ ] Jua native function calls
+- [x] Jua native function creation
+- [x] Jua native function calls
 - [x] function calls
 - [x] function return type
 - [x] mixing up functions and expr
