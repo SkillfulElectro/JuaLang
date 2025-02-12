@@ -32,7 +32,8 @@ if (EXPR) {
 function func_name(args) {
 /* stmts */
 }
-``` 
+```
+- all types of function calls are by reference
 ```c
 func_name(args ...);
 ```
