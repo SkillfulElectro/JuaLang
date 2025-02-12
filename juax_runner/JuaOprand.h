@@ -7,6 +7,7 @@
 enum DFActionType {
 	DOUBLE,
 	PUSH,
+	POP,
 	JUMP,
 	CALL,
 	JUMPF,
@@ -32,7 +33,7 @@ enum DFActionType {
 
 #include <variant>
 #include <string>
-#include "../lexer_sys/DFAction_Types.h"
+#include "../compiler_sys/DFAction_Types.h"
 
 struct JuaOprand {
 	DFActionType op_type;
@@ -72,5 +73,15 @@ struct JuaStackVal {
 		return std::get<JuaOprand*>(value);
 	}
 };
+
+struct JuaInstruction {
+	DFActionType job;
+	JuaOprand oprand1;
+	JuaOprand oprand2;
+	JuaOprand result;
+};
+
+#include "../lexer_sys/DFMatcher.h"
+#include "JuaModule.h"
 
 #endif // !JUA_OPRAND

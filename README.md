@@ -18,6 +18,8 @@ an experimental programming language which is written based on custom PDA style 
 ```
 ```c
 while (EXPR) {
+continue;
+break;
 /*stmts*/
 } 
 ```

@@ -4,26 +4,9 @@
 
 #include "JuaLangTypes.h"
 
-
 struct JuaCompileOprand {
 	DFActionType op_type;
-	std::variant<size_t, double, std::string, void*> value;
-
-	size_t get_sizet() {
-		return std::get<size_t>(value);
-	}
-
-	double get_doub() {
-		return std::get<double>(value);
-	}
-
-	std::string get_str() {
-		return std::get<std::string>(value);
-	}
-
-	void* get_void_ptr() {
-		return std::get<void*>(value);
-	}
+	std::string value;
 };
 
 class JuaCompileTimeLexer {

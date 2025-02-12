@@ -37,6 +37,8 @@ enum DFActionType {
 	ASSIGN,
 	SCOPE,
 	FUNCTION,
+	CONTINUE,
+	BREAK,
 
 	/// compile time lexer types
 
@@ -65,8 +67,13 @@ enum DFActionType {
 using DFActionVal = std::variant<std::string, double, size_t>;
 
 
-#include "lexer_sys/DFMatcher.h"
-#include "compiler_sys/DFAction.h"
+#include "../lexer_sys/DFMatcher.h"
+#include "../compiler_sys/DFAction.h"
 #include "JuaScope.h"
+
+struct JuaFuncDef {
+	std::string func_code;
+	std::vector<std::string> paras_addrs;
+};
 
 #endif // !JUALANG_TYPES

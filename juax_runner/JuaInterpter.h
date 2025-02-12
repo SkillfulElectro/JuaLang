@@ -5,16 +5,7 @@
 
 #include <iostream>
 #include "JuaOprand.h"
-#include "../lexer_sys/DFMatcher.h"
-#include "JuaModule.h"
 
-
-struct JuaInstruction {
-	DFActionType job;
-	JuaOprand oprand1;
-	JuaOprand oprand2;
-	JuaOprand result;
-};
 
 class JuaInterpter {
 	std::vector<JuaInstruction> instructions;
@@ -89,7 +80,7 @@ public:
 				// pop ; ; addr
 				auto back = stack.back();
 				stack.pop_back();
-			
+
 				switch (back.type)
 				{
 				case VALUE:
@@ -99,7 +90,7 @@ public:
 					v_mem[instruction.result.get_sizet()] = *back.get_ptr();
 					break;
 				}
-			
+
 				break;
 			}
 			case CALL: {
@@ -1025,6 +1016,7 @@ public:
 		lexer.insert_token(ident_func);
 
 		lexer.create_word_token("push", PUSH, false);
+		lexer.create_word_token("pop", POP, false);
 		lexer.create_word_token("call", CALL, false);
 		lexer.create_word_token("=", ASSIGN, false);
 		lexer.create_word_token("+", PLUS, false);
