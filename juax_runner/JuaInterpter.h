@@ -5,8 +5,6 @@
 
 #include <iostream>
 #include "JuaOprand.h"
-#include "DFMatcher.h"
-#include "JuaModule.h"
 
 
 class JuaInterpter {
