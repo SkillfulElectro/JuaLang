@@ -25,6 +25,15 @@ void JuaLang::init_dfaction() {
 	if_handler[IF_HANDLER][CLOSE_PARAN] = IF_SCOPE;
 	this->add_special_dfa(IF_HANDLER, if_handler);
 
+	DFA if_scope_handler;
+	this->add_special_dfa(IF_SCOPE, if_scope_handler);
+
+	DFA chain_handler;
+	chain_handler[CHAIN_HANLDER][ELSE] = ELSE_HANDLER;
+	chain_handler[ELSE_HANDLER][IF] = CHAIN_HANLDER;
+	this->add_special_dfa(CHAIN_HANLDER, chain_handler);
+
+
 	DFA n_func_handler;
 	this->add_special_dfa(N_FUNC_HANDLER, n_func_handler);
 

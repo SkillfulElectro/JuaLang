@@ -1,0 +1,1 @@
+- this example belongs to prev versions of the compiler and lexer sys , if you want more advanced examples , check out JuaLang itself

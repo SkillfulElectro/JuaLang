@@ -33,7 +33,7 @@ enum DFActionType {
 
 #include <variant>
 #include <string>
-#include "../compiler_sys/DFAction_Types.h"
+#include "DFAction_Types.h"
 
 struct JuaOprand {
 	DFActionType op_type;

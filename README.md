@@ -26,6 +26,10 @@ break;
 ```c
 if (EXPR) {
 /*stmts*/
+} else if (EXPR) {
+/*stmts*/
+} else {
+/* stmts */
 }
 ```
 - Jua has native functions , but Jua native functions because of the special behavior of return token does not return value

@@ -62,6 +62,10 @@ DFActionFlow JuaLang::action_function(
 		return function_def_scope_action(index_in_tokens, tokens, go_next_index);
 	case N_FUNC_HANDLER:
 		return n_func_handler_action(index_in_tokens, tokens, go_next_index);
+	case CHAIN_HANLDER:
+		return chain_handler_action(index_in_tokens, tokens, go_next_index);
+	case ELSE_HANDLER:
+		return else_handler_action(index_in_tokens, tokens, go_next_index);
 	default:
 		break;
 	}
