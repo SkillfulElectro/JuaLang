@@ -81,7 +81,7 @@ struct JuaInstruction {
 	JuaOprand result;
 };
 
-#include "DFMatcher.h"
+#include "../lexer_sys/DFMatcher.h"
 #include "JuaModule.h"
 
 #endif // !JUA_OPRAND
