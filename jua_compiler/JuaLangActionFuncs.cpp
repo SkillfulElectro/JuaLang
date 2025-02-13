@@ -24,7 +24,7 @@ DFActionFlow JuaLang::start_action(
 		return { DFACTION_GO_TO_SP_DFA , WHILE_HANDLER };
 	case IF:
 		go_next_index = false;
-		return { DFACTION_GO_TO_SP_DFA , IF_HANDLER };
+		return { DFACTION_GO_TO_SP_DFA , CHAIN_HANLDER };
 	case OP_BRACE:
 		go_next_index = false;
 		return { DFACTION_GO_TO_SP_DFA , SCOPE_HANDLER };
@@ -935,7 +935,7 @@ DFActionFlow JuaLang::if_handler_action(
 		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , IF_SCOPE };
 	}
 	default:
-		break;
+		return { DFACTION_BACK_TO_PREV , DFActionState(0) };
 	}
 }
 
@@ -974,13 +974,16 @@ DFActionFlow JuaLang::if_scope_handler_action(
 		}
 		stack.pop_back();
 
+		stack.push_back({ ELSE , bytecode.size()});
+		bytecode.push_back("");
+
 		code << "jmpf" << " " << get_dfval_str(expr_addr.value) << " " << bytecode.size() << " " << ";";
 
 		bytecode[get_sizet(jmpf_i.value)] = code.str();
 
 		go_next_index = false;
 
-		scopes.create_new_scope();
+		scopes.destroy_scope();
 
 		for (auto& val : will_be_pushed_back) {
 			stack.push_back(val);
@@ -990,6 +993,141 @@ DFActionFlow JuaLang::if_scope_handler_action(
 	}
 	default:
 		break;
+	}
+}
+
+DFActionFlow JuaLang::chain_handler_action(
+	size_t& index_in_tokens
+	, const std::vector<DFActionToken>& tokens
+	, bool& go_next_index) {
+
+	auto& token = tokens[index_in_tokens];
+
+	switch (token.type)
+	{
+	case IF:
+		go_next_index = false;
+		return { DFACTION_GO_TO_SP_DFA , IF_HANDLER };
+	case ELSE:
+		return { DFActionFlowCode::DFACTION_SAFE , DFActionState(0) };
+	default: {
+		go_next_index = false;
+
+		std::vector<DFActionToken> will_be_pushed_back;
+		std::vector<DFActionToken> elses;
+
+		auto back = stack.back();
+
+		bool loop_con = true;
+		while (loop_con) {
+			switch (back.type)
+			{
+			case CONTINUE:
+			case BREAK:
+				will_be_pushed_back.push_back(back);
+				stack.pop_back();
+				break;
+			case ELSE:
+				elses.push_back(back);
+				stack.pop_back();
+				break;
+			default:
+				loop_con = false;
+				break;
+			}
+
+			
+
+			if (!stack.empty()) {
+				back = stack.back();
+			}
+			else {
+				break;
+			}
+		}
+
+		for (auto& val : will_be_pushed_back) {
+			stack.push_back(val);
+		}
+
+		std::ostringstream code;
+
+		code << "jmp" << " " << bytecode.size() << " " << ";" << " " << ";";
+
+		for (auto& val : elses) {
+			bytecode[get_sizet(val.value)] = code.str();
+ 		}
+
+		return { DFACTION_BACK_TO_PREV , DFActionState(0) };
+	}
+	}
+}
+
+DFActionFlow JuaLang::else_handler_action(
+	size_t& index_in_tokens
+	, const std::vector<DFActionToken>& tokens
+	, bool& go_next_index) {
+
+	auto& token = tokens[index_in_tokens];
+
+	switch (token.type)
+	{
+	case IF:
+		go_next_index = false;
+		return { DFActionFlowCode::DFACTION_SAFE , DFActionState(0) };
+	case OP_BRACE:
+		go_next_index = false;
+		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , SCOPE_HANDLER };
+	default: {
+		go_next_index = false;
+
+		std::vector<DFActionToken> will_be_pushed_back;
+		std::vector<DFActionToken> elses;
+
+		auto back = stack.back();
+
+		bool loop_con = true;
+		while (loop_con) {
+			switch (back.type)
+			{
+			case CONTINUE:
+			case BREAK:
+				will_be_pushed_back.push_back(back);
+				stack.pop_back();
+				break;
+			case ELSE:
+				elses.push_back(back);
+				stack.pop_back();
+				break;
+			default:
+				loop_con = false;
+				break;
+			}
+
+
+
+			if (!stack.empty()) {
+				back = stack.back();
+			}
+			else {
+				break;
+			}
+		}
+
+		for (auto& val : will_be_pushed_back) {
+			stack.push_back(val);
+		}
+
+		std::ostringstream code;
+
+		code << "jmp" << " " << bytecode.size() << " " << ";" << " " << ";";
+
+		for (auto& val : elses) {
+			bytecode[get_sizet(val.value)] = code.str();
+		}
+
+		return { DFACTION_BACK_TO_PREV , DFActionState(0) };
+	}
 	}
 }
 

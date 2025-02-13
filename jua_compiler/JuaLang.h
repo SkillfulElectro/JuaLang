@@ -7,14 +7,14 @@
 
 class JuaLang : public DFAction {
 
-/// <summary>
-/// types
-/// </summary>
+	/// <summary>
+	/// types
+	/// </summary>
 private:
 	std::vector<std::string> bytecode;
 
 	std::vector<DFActionToken> stack;
-	
+
 	JuaScope scopes;
 
 	DFMatcher lexer;
@@ -24,13 +24,13 @@ private:
 
 	std::unordered_map<std::string, JuaFuncDef> functions_code;
 
-/// <summary>
-/// funcs
-/// </summary>
+	/// <summary>
+	/// funcs
+	/// </summary>
 private:
 
 	std::string get_dfval_str(DFActionVal val);
-	
+
 	double get_dfval_doub(DFActionVal val);
 
 	size_t get_sizet(DFActionVal val);
@@ -61,7 +61,7 @@ private:
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
-	
+
 	DFActionFlow expr_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
@@ -109,6 +109,16 @@ private:
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
+	DFActionFlow else_handler_action(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index);
+
+	DFActionFlow chain_handler_action(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index);
+
 	DFActionFlow scope_handler_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
@@ -143,6 +153,7 @@ private:
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
+
 
 protected:
 

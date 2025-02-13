@@ -13,8 +13,8 @@
 
 enum DFActionState {
 	START, EXPR, IDENTER, FUNC, IDENT_EXPR, EXPR_OPS, EXPR_PARA, FUNC_HANDLER, RETURN_HANDLER, WHILE_HANDLER,
-	WHILE_SCOPE, IF_HANDLER, IF_SCOPE, SCOPE_HANDLER , FUNCTION_DEF_HANDLER, FUNCTION_DEF_IDENT, FUNCTION_PARA_HANDLER,
-	FUNC_PARA_VARS, FUNCTION_DEF_SCOPE, N_FUNC_HANDLER,
+	WHILE_SCOPE, IF_HANDLER, IF_SCOPE, SCOPE_HANDLER, FUNCTION_DEF_HANDLER, FUNCTION_DEF_IDENT, FUNCTION_PARA_HANDLER,
+	FUNC_PARA_VARS, FUNCTION_DEF_SCOPE, N_FUNC_HANDLER, CHAIN_HANLDER, ELSE_HANDLER,
 };
 
 enum DFActionType {
@@ -67,8 +67,8 @@ enum DFActionType {
 using DFActionVal = std::variant<std::string, double, size_t>;
 
 
-#include "../lexer_sys/DFMatcher.h"
-#include "../compiler_sys/DFAction.h"
+#include "DFMatcher.h"
+#include "DFAction.h"
 #include "JuaScope.h"
 
 struct JuaFuncDef {
