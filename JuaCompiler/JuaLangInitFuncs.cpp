@@ -51,6 +51,9 @@ void JuaLang::init_dfaction() {
 	expr[EXPR_OPS][CONST_STRING] = EXPR;
 	this->add_special_dfa(EXPR_OPS, expr);
 
+	DFA expr_func_router;
+	this->add_special_dfa(EXPR_FUNC_ROUTER, expr_func_router);
+
 	DFA ret;
 	this->add_special_dfa(RETURN_HANDLER, ret);
 

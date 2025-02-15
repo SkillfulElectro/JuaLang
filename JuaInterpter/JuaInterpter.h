@@ -4,10 +4,20 @@
 
 
 #include <iostream>
-#include "JuaOprand.h"
+#include "JuaInterpter_Types.h"
 
+typedef JuaOprand (JuaModule::* JuaFunc)(std::vector<JuaStackVal>& oprands);
+
+struct JuaExtension {
+	JuaFunc func;
+	JuaModule* obj;
+};
+
+class JuaLang;
 
 class JuaInterpter {
+	friend class JuaLang;
+
 	std::vector<JuaInstruction> instructions;
 
 	DFMatcher lexer;
@@ -16,7 +26,9 @@ class JuaInterpter {
 
 	std::unordered_map<size_t, JuaOprand> v_mem;
 
-	std::unordered_map<std::string, JuaModule*> extensions;
+	std::vector<JuaExtension> extensions;
+
+	std::unordered_map<std::string, size_t> ext_table;
 
 	inline JuaOprand convert_DFMatcherRes(const DFMatcherRes& res) {
 		JuaOprand oprand;
@@ -46,8 +58,12 @@ class JuaInterpter {
 		return oprand;
 	}
 public:
-	inline void add_extension(const std::string& name, JuaModule* func) {
-		extensions[name] = func;
+	template<typename T>
+	inline void add_extension(const std::string& name, JuaOprand(T::* func)(std::vector<JuaStackVal>&) , JuaModule* obj) {
+
+		ext_table[name] = extensions.size();
+
+		extensions.push_back({ static_cast<JuaFunc>(func) , obj });
 	}
 
 	inline std::vector<JuaOprand> run_instructions() {
@@ -63,6 +79,7 @@ public:
 				{
 				case ADDR:
 					stack.push_back({ REF , &v_mem[instruction.oprand1.get_sizet()] });
+
 					break;
 				case DOUBLE: {
 					stack.push_back({ VALUE , JuaOprand{ instruction.oprand1.op_type , instruction.oprand1.get_doub() } });
@@ -95,8 +112,24 @@ public:
 			}
 			case CALL: {
 					std::vector<JuaStackVal> input(stack.end() - instruction.oprand2.get_sizet(), stack.end());
-					v_mem[instruction.result.get_sizet()] = extensions[instruction.oprand1.get_str()]->jua_extension_func(input);
-					stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+
+					switch (instruction.oprand1.op_type)
+					{
+					case FUNC_IDENT: {
+						auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
+						v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
+						stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+
+						break;
+					}
+					case ADDR: {
+						auto& func = extensions[instruction.oprand1.get_sizet()];
+						v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
+						stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+
+						break;
+					}
+					}
 
 					break;
 			}

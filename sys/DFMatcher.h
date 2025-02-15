@@ -9,7 +9,7 @@
 #include <vector>
 #include <sstream>
 
-#include "../compiler_sys/DFAction_Types.h"
+#include "DFAction_Types.h"
 
 enum DFMatcherResCode {
 	SUCCESS,
@@ -159,7 +159,7 @@ public:
 	/// returns the token final state it seen
 	/// </summary>
 	/// <returns>token name if "" means no matching token</returns>
-	DFMatcherRes get_token(
+	inline DFMatcherRes get_token(
 		const std::string& buffer
 		, size_t& buffer_index) {
 

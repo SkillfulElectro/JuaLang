@@ -4,6 +4,7 @@
 
 #include "JuaLangTypes.h"
 #include "JuaNativeFunc.h"
+#include "JuaInterpter.h"
 
 class JuaLang : public DFAction {
 
@@ -23,6 +24,10 @@ private:
 	JuaCompileTimeLexer comp_lexer;
 
 	std::unordered_map<std::string, JuaFuncDef> functions_code;
+
+	JuaInterpter* interpter;
+
+	bool func_return = false;
 
 	/// <summary>
 	/// funcs
@@ -73,6 +78,11 @@ private:
 		, bool& go_next_index);
 
 	DFActionFlow expr_para_action(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index);
+
+	DFActionFlow expr_func_router_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
@@ -169,9 +179,19 @@ public:
 		init_lexer();
 		init_dfaction();
 		scopes.create_new_scope();
+		interpter = nullptr;
+		func_return = false;
 	}
 
 	~JuaLang() {}
+
+	void set_interpter(JuaInterpter* interpter) {
+		this->interpter = interpter;
+	}
+
+	void unset_interpter() {
+		this->interpter = nullptr;
+	}
 
 	std::string compile(const std::string& buffer);
 };

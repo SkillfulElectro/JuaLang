@@ -114,8 +114,6 @@ DFActionFlow JuaLang::identer_action(
 			}
 		}
 	}
-	default:
-		break;
 	}
 
 	return { DFACTION_SAFE , DFActionState(0) };
@@ -292,7 +290,7 @@ DFActionFlow JuaLang::expr_action(
 			IDENT , res.ident_name
 			});
 
-		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , FUNC_HANDLER };
+		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , EXPR_FUNC_ROUTER };
 	}
 
 	case OPERATOR: {
@@ -533,7 +531,8 @@ DFActionFlow JuaLang::expr_ops_action(
 		break;
 	}
 	default:
-		break;
+		go_next_index = false;
+		return { DFACTION_BACK_TO_PREV ,  DFActionState(0) };
 	}
 
 	return { DFACTION_SAFE , DFActionState(0) };
@@ -566,6 +565,32 @@ DFActionFlow JuaLang::expr_para_action(
 
 		break;
 	}
+}
+
+DFActionFlow JuaLang::expr_func_router_action(
+	size_t& index_in_tokens
+	, const std::vector<DFActionToken>& tokens
+	, bool& go_next_index) {
+
+	auto& token = tokens[index_in_tokens];
+
+	if (token.type == OP_PARAN) {
+		go_next_index = false;
+
+		auto ident = stack.back();
+
+		if (functions_code.find(get_dfval_str(ident.value)) != functions_code.end()) {
+			return { DFACTION_GO_TO_SP_DFA , N_FUNC_HANDLER };
+		}
+		else {
+
+			return { DFACTION_GO_TO_SP_DFA , FUNC_HANDLER };
+		}
+	}
+
+	go_next_index = false;
+
+	return { DFACTION_BACK_TO_PREV , DFActionState(0) };
 }
 
 DFActionFlow JuaLang::func_handler_action(
@@ -630,7 +655,19 @@ DFActionFlow JuaLang::func_handler_action(
 
 			std::string addr = scopes.get_new_tmp().addr;
 
-			code << "call" << " " << get_dfval_str(identi.value) << " " << get_dfval_doub(counter.value) << " " << addr;
+			std::string func_name = get_dfval_str(identi.value);
+
+			if (interpter != nullptr) {
+				if (interpter->ext_table.find(func_name) == interpter->ext_table.end()) {
+					std::cout << "INVALID FUNC NAME PASSED !";
+					return { DFActionFlowCode::DFACTION_PANIC , DFActionState(0) };
+				}
+				else {
+					func_name = std::to_string(interpter->ext_table[func_name]);
+				}
+			}
+
+			code << "call" << " " << func_name << " " << get_dfval_doub(counter.value) << " " << addr;
 			bytecode.push_back(code.str());
 
 			stack.push_back({
@@ -795,14 +832,12 @@ DFActionFlow JuaLang::return_handler_action(
 
 			code.str("");
 
-			std::string addr = scopes.get_new_tmp().addr;
+
 
 			code << "ret" << " " << get_dfval_doub(counter.value) << " " << ";" << " " << ";";
 			bytecode.push_back(code.str());
 
-			stack.push_back({
-				ADDR , addr
-				});
+
 		}
 		return { DFActionFlowCode::DFACTION_BACK_TO_PREV , DFActionState(0) };
 	}
@@ -1276,7 +1311,27 @@ DFActionFlow JuaLang::function_def_scope_action(
 		std::string code = "";
 
 		for (size_t i{ get_sizet(index.value) }; i < bytecode.size(); ++i) {
-			code += bytecode[i];
+			auto test_jmp = comp_lexer.insert_bytecode(bytecode[i]);
+
+			std::string val = bytecode[i];
+
+			switch (test_jmp[0].op_type)
+			{
+			case JUMP:
+				test_jmp[1].value = std::to_string(std::stoull(test_jmp[1].value) - get_sizet(index.value));
+
+				val = test_jmp[0].value + " " + test_jmp[1].value + " " + test_jmp[2].value + " " + test_jmp[3].value;
+ 				break;
+			case JUMPF:
+				test_jmp[2].value = std::to_string(std::stoull(test_jmp[2].value) - get_sizet(index.value));
+
+				val = test_jmp[0].value + " " + test_jmp[1].value + " " + test_jmp[2].value + " " + test_jmp[3].value;
+				break;
+			default:
+				break;
+			}
+
+			code += val;
 			code += '\n';
 		}
 
@@ -1354,11 +1409,30 @@ DFActionFlow JuaLang::n_func_handler_action(
 
 			auto instructions = comp_lexer.insert_bytecode(func.func_code);
 
+			size_t func_start = bytecode.size();
+
 			std::string instruction;
 
-			for (auto& instruct : instructions) {
+			for (size_t i{ 0 };i<instructions.size();++i) {
+
+				auto& instruct = instructions[i];
+
 				switch (instruct.op_type)
 				{
+				case JUMP: {
+					auto& val = instructions[i + 1];
+
+					val.value = std::to_string(std::stoull(val.value) + func_start);
+
+					break;
+				}
+				case JUMPF: {
+					auto& val = instructions[i + 2];
+
+					val.value = std::to_string(std::stoull(val.value) + func_start);
+
+					break;
+				}
 				case FUNC_ADDR: {
 					if (addrs.find(instruct.value) != addrs.end()) {
 						instruction += addrs[instruct.value];
@@ -1403,9 +1477,27 @@ DFActionFlow JuaLang::n_func_handler_action(
 
 			std::string instruction;
 
-			for (auto& instruct : instructions) {
+			size_t func_start = bytecode.size();
+
+			for (size_t i{ 0 }; i < instructions.size(); ++i) {
+
+				auto& instruct = instructions[i];
 				switch (instruct.op_type)
 				{
+				case JUMP: {
+					auto& val = instructions[i + 1];
+
+					val.value = std::to_string(std::stoull(val.value) + func_start);
+
+					break;
+				}
+				case JUMPF: {
+					auto& val = instructions[i + 2];
+
+					val.value = std::to_string(std::stoull(val.value) + func_start);
+
+					break;
+				}
 				case FUNC_ADDR: {
 					if (addrs.find(instruct.value) != addrs.end()) {
 						instruction += addrs[instruct.value];

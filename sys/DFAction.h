@@ -57,19 +57,19 @@ protected:
 	) = 0;
 
 
-	DFAction(DFA* machine = nullptr) {
+	inline DFAction(DFA* machine = nullptr) {
 		this->machine = machine;
 	}
 
-	void new_dfa(DFA* states) {
+	inline void new_dfa(DFA* states) {
 		this->machine = states;
 	}
 
-	void add_special_dfa(DFActionState start_state, DFA dfa) {
+	inline void add_special_dfa(DFActionState start_state, DFA dfa) {
 		specials_dfa[start_state] = dfa;
 	}
 
-	DFActionReturnVal run_dfa_on(const std::vector<DFActionToken>& tokens 
+	inline DFActionReturnVal run_dfa_on(const std::vector<DFActionToken>& tokens 
 		, const DFActionState& start_state) {
 
 		if (machine == nullptr) {
