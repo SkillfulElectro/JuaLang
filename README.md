@@ -47,7 +47,7 @@ func_name(args ...);
 hi = "string data type"
 numeric = 1.2 
 ```
-- Jua native functions does not return value so can't use them in expr
+- Jua native inline functions does not return value so can't use them in expr , so zed here is Jua extension func
 ```c
 /*EXPR*/
 hi = zed() + (4/2) * 3 ;
@@ -62,35 +62,43 @@ return x , 2 , ...;
 - for extending Jua , you have two ways :
 
 ### Jua Functions
-- Jua has enough functionality to be as a basic bridge between your binary program and user extension codes
-- for creating functions in Jua first you need to include the Juax interpreter
+- as an example you can take a look at main.cpp file which shows how to use the below features
+- Jua has enough functionality to be as a basic bridge between your binary program and user
+- for creating functions in Jua first you need to include the Juax interpreter which lives in JuaLang header
 ```c
-#include "JuaInterpter.h"
+#include "JuaLang.h"
 ```
 - after this you can now use JuaModule to create Jua functions which are callabe from Jua side , e.g.:
-- from v2.0.0 jua_extension_func uses JuaStackVal , refer to releases for more details
+- from v2.0.0 jua extension funcs use JuaStackVal , refer to releases for more details
+- from version v5.0.0 , JuaModule is acting like a placeholder of class type and must be inherited for example : 
 ```cpp
 class zed : public JuaModule {
 public:
-	zed(const std::string& func_name, JuaInterpter* instance) : JuaModule(func_name , instance) {}
-	JuaOprand jua_extension_func(std::vector<JuaOprand> oprands) override {
-		std::cout << "its test";
+	JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 
-		for (size_t i{ 0 }; i < oprands.size(); ++i) {
-			std::cout << oprands[i].get_doub();
+		auto& oprand = *oprands[0].get_ptr();
+
+		switch (oprand.op_type)
+		{
+		case STRING:
+			std::cout << oprand.get_str() << "\n";
+			break;
+		case DOUBLE:
+			std::cout << oprand.get_doub() << "\n";
+			break;
 		}
 
-		std::cout << '\n';
 
-		return JuaOprand(DFActionType(0), 0.0);
+		return { DOUBLE , 1.0 };
 	}
 };
 ```
-- and then you use it in your Intreoter
+- and then you use it in your interpreter
 ```cpp
-  JuaInterpter instance(code);
-	zed test1("zed", &instance);
-	zed test2("bye", &instance);
+        JuaInterpter instance;
+	zed test2;
+	instance.add_extension("print", &zed::jua_extension_func, &test2);
+
 ```
 - the functions are now callable with that associated names
 - also if your functions gonna send an object of the class to the Jua system , its possible by casting them to void* and return with VOID type . this type is only used for these kind of usages
@@ -123,6 +131,15 @@ ret 1 ; ;
 	JuaLang instance;
 	std::cout << instance.compile("hi = 10; while (hi - 1) { bye(hi); hi = hi - 1; } return hi;");
 ```
+- also you can enable func availability checking by :
+```c++
+	JuaLang cinstance;
+	JuaInterpter instance;
+	zed test2;
+	instance.add_extension("print", &zed::jua_extension_func, &test2);
+	cinstance.set_interpter(&instance);
+```
+- when you use set_interpter function , it produces faster Juax code for available interpreter , btw if you want to produce general Juax code do not use this function
 
 ## sys
 - for using sys to create new programming language :
@@ -172,6 +189,7 @@ ret 1 ; ;
 - after defining the main part which the program must follow , you will create sub roads and connect them to it via action_function which you must override
 - try to create as many as sub road possible , it makes your job so much easier
 - you manage how DFAction is going to work with DFActionFlowCode and go_next_index variables which are going to be passed to your overrided action_function and many more ...
+- DFAction experienced some changes over the time refer to its source code for more details
 
 ## Contributions
 - after all hope Jua be useful embedable programming language and feel free to help me extend it more and in a better way
