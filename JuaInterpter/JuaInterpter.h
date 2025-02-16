@@ -3,7 +3,6 @@
 #define JUA_INTERPTER
 
 
-#include <iostream>
 #include "JuaInterpter_Types.h"
 
 typedef JuaOprand (JuaModule::* JuaFunc)(std::vector<JuaStackVal>& oprands);
@@ -29,6 +28,15 @@ class JuaInterpter {
 	std::vector<JuaExtension> extensions;
 
 	std::unordered_map<std::string, size_t> ext_table;
+
+	std::thread instructions_extractor;
+
+	size_t inst_extract_index = 0;
+	bool inst_extract_ended = false;
+
+	std::mutex inst_mutex;
+	std::condition_variable inst_cv;
+
 
 	inline JuaOprand convert_DFMatcherRes(const DFMatcherRes& res) {
 		JuaOprand oprand;
@@ -69,8 +77,43 @@ public:
 	inline std::vector<JuaOprand> run_instructions() {
 		std::vector<JuaOprand> rets;
 
-		for (size_t inst_index{ 0 }; inst_index < instructions.size();++inst_index) {
-			auto& instruction = instructions[inst_index];
+		if (!inst_extract_ended) {
+			std::unique_lock<std::mutex> lock(inst_mutex);
+			inst_cv.wait(lock, [&]() { return inst_extract_index > 0 || inst_extract_ended; });
+		}
+
+		for (size_t inst_index{ 0 }; ;++inst_index) {
+
+			if (!inst_extract_ended) {
+				std::unique_lock<std::mutex> lock(inst_mutex);
+
+				inst_cv.wait(lock, [&]() {
+					return inst_index < instructions.size() || inst_extract_ended;
+					});
+
+
+				if (inst_index >= instructions.size() && inst_extract_ended) {
+					break;
+				}
+			}
+			else {
+				if (inst_index >= instructions.size()) {
+					break;
+				}
+			}
+
+
+			JuaInstruction instruction;
+			if (!inst_extract_ended){
+				std::unique_lock<std::mutex> lock(inst_mutex);
+
+				instruction = instructions[inst_index];
+			}
+			else {
+				instruction = instructions[inst_index];
+			}
+
+
 
 			switch (instruction.job)
 			{
@@ -991,46 +1034,83 @@ public:
 	}
 
 	inline void insert_bytecode(const std::string& juax_code) {
-		instructions.clear();
 
-		size_t index = 0;
-		DFMatcherRes res;
+		if (instructions_extractor.joinable()) {
+			instructions_extractor.join();
+		}
 
-		JuaInstruction instruction;
-		size_t inst_val = 0;
+		
 
-
-
-		do {
-			res = lexer.get_token(juax_code, index);
+		instructions_extractor = std::thread([&] {
 
 
-
-			switch (inst_val)
 			{
-			case 0:
-				instruction.job = res.token_identifier;
-				break;
-			case 1:
-				instruction.oprand1 = convert_DFMatcherRes(res);
-				break;
-			case 2:
-				instruction.oprand2 = convert_DFMatcherRes(res);
-				break;
-			case 3:
-				instruction.result = convert_DFMatcherRes(res);
-				break;
+				std::lock_guard<std::mutex> lock(inst_mutex);
+				instructions.clear();
+				inst_extract_index = 0;
+				inst_extract_ended = false;
 			}
 
-			if (res.token_identifier != NEXT_INST) {
-				++inst_val;
-			}
-			else {
-				instructions.push_back(instruction);
-				inst_val = 0;
+			size_t index = 0;
+			DFMatcherRes res;
+
+			JuaInstruction instruction;
+			size_t inst_val = 0;
+
+
+			
+
+			do {
+				res = lexer.get_token(juax_code, index);
+
+
+
+				switch (inst_val)
+				{
+				case 0:
+					instruction.job = res.token_identifier;
+					break;
+				case 1:
+					instruction.oprand1 = convert_DFMatcherRes(res);
+					break;
+				case 2:
+					instruction.oprand2 = convert_DFMatcherRes(res);
+					break;
+				case 3:
+					instruction.result = convert_DFMatcherRes(res);
+					break;
+				}
+
+				if (res.token_identifier != NEXT_INST) {
+					++inst_val;
+				}
+				else {
+
+					{
+						std::lock_guard<std::mutex> lock(inst_mutex);
+						instructions.push_back(instruction);
+
+						inst_extract_index = instructions.size();
+					}
+
+					inst_cv.notify_all();
+					inst_val = 0;
+
+				}
+
+			} while (res.status != END_OF_FILE);
+
+
+			{
+				std::lock_guard<std::mutex> lock(inst_mutex);
+				inst_extract_ended = true;
 			}
 
-		} while (res.status != END_OF_FILE);
+			inst_cv.notify_all();
+
+			});
+
+
 	}
 
 	JuaInterpter(const std::string& juax_code = "") {
@@ -1109,6 +1189,13 @@ public:
 			insert_bytecode(juax_code);
 		}
 	}
+
+	~JuaInterpter() {
+		if (instructions_extractor.joinable()) {
+			instructions_extractor.join();
+		}
+	}
+
 };
 
 #endif // !JUA_INTERPTER

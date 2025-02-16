@@ -7,6 +7,8 @@
 
 #include <variant>
 #include <string>
+#include <thread>
+#include <mutex>
 
 class JuaOprand {
 public:
