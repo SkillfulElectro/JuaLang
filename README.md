@@ -2,12 +2,12 @@
   <img alt="JuaLang Logo" src="JuaLogo.jpg" style="width:auto;height:auto;">
 </p>
 
+> this branch is focused on real time compiling and running the program , the main branch is preferred if you want to load all the instructions first and run them later .
 
 <h1 align="center">JuaLang</h1> 
 
 an experimental programming language which is written based on custom PDA style algorithm instead of algorithms like LALR(1) and etc
 
-> this branch is focused on real time compiling and running the program
 
 ## Why Jua?
 - the first reason is just for having fun ! :)
