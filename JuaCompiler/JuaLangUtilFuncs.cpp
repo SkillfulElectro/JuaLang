@@ -87,7 +87,7 @@ std::string JuaLang::compile(const std::string& buffer) {
 
 
 		DFActionToken tok;
-		tok.value = res.value;
+		tok.value = std::string(res.value);
 		tok.type = res.token_identifier;
 
 		tokens.push_back(tok);

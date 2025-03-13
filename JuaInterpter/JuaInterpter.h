@@ -6,7 +6,7 @@
 #include <iostream>
 #include "JuaInterpter_Types.h"
 
-typedef JuaOprand (JuaModule::* JuaFunc)(std::vector<JuaStackVal>& oprands);
+typedef JuaOprand(JuaModule::* JuaFunc)(std::vector<JuaStackVal>& oprands);
 
 struct JuaExtension {
 	JuaFunc func;
@@ -37,21 +37,21 @@ class JuaInterpter {
 		{
 		case ADDR:
 			oprand.op_type = res.token_identifier;
-			oprand.value = std::stoul(res.value);
+			oprand.value = std::stoul(std::string(res.value));
 
 			break;
 		case DOUBLE:
 			oprand.op_type = res.token_identifier;
-			oprand.value = atof(res.value.substr(1).c_str());
+			oprand.value = atof(std::string(res.value).substr(1).c_str());
 			break;
 		case STRING:
 			oprand.op_type = res.token_identifier;
-			oprand.value = res.value.substr(1, res.value.length() - 2);
+			oprand.value = std::string(res.value).substr(1, res.value.length() - 2);
 			break;
 		case EMPTY:
 		case FUNC_IDENT:
 			oprand.op_type = res.token_identifier;
-			oprand.value = res.value;
+			oprand.value = std::string(res.value);
 			break;
 		}
 
@@ -59,7 +59,7 @@ class JuaInterpter {
 	}
 public:
 	template<typename T>
-	inline void add_extension(const std::string& name, JuaOprand(T::* func)(std::vector<JuaStackVal>&) , JuaModule* obj) {
+	inline void add_extension(const std::string& name, JuaOprand(T::* func)(std::vector<JuaStackVal>&), JuaModule* obj) {
 
 		ext_table[name] = extensions.size();
 
@@ -69,7 +69,7 @@ public:
 	inline std::vector<JuaOprand> run_instructions() {
 		std::vector<JuaOprand> rets;
 
-		for (size_t inst_index{ 0 }; inst_index < instructions.size();++inst_index) {
+		for (size_t inst_index{ 0 }; inst_index < instructions.size(); ++inst_index) {
 			auto& instruction = instructions[inst_index];
 
 			switch (instruction.job)
@@ -86,7 +86,7 @@ public:
 
 					break;
 				}
-				case STRING: 
+				case STRING:
 					stack.push_back({ VALUE , JuaOprand{ instruction.oprand1.op_type , instruction.oprand1.get_str() } });
 
 					break;
@@ -111,27 +111,27 @@ public:
 				break;
 			}
 			case CALL: {
-					std::vector<JuaStackVal> input(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+				std::vector<JuaStackVal> input(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 
-					switch (instruction.oprand1.op_type)
-					{
-					case FUNC_IDENT: {
-						auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
-						v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
-						stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
-
-						break;
-					}
-					case ADDR: {
-						auto& func = extensions[instruction.oprand1.get_sizet()];
-						v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
-						stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
-
-						break;
-					}
-					}
+				switch (instruction.oprand1.op_type)
+				{
+				case FUNC_IDENT: {
+					auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
+					v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
+					stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 
 					break;
+				}
+				case ADDR: {
+					auto& func = extensions[instruction.oprand1.get_sizet()];
+					v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
+					stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+
+					break;
+				}
+				}
+
+				break;
 			}
 			case RETURN:
 				// ret n ; ;
@@ -203,7 +203,7 @@ public:
 
 					break;
 				}
-				
+
 
 				break;
 			case JUMPT:
@@ -273,24 +273,24 @@ public:
 				default:
 					break;
 				}
-				
+
 				break;
 			}
 			case PLUS: {
 
-				
+
 				switch (instruction.oprand1.op_type)
 				{
 				case ADDR: {
-					
+
 					switch (instruction.oprand2.op_type)
 					{
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type)
 						{
 						case DOUBLE:
-							
+
 							v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 							switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 							{
@@ -300,7 +300,7 @@ public:
 									v_mem[instruction.oprand2.get_sizet()].get_doub();
 								break;
 							case STRING:
-								
+
 								v_mem[instruction.result.get_sizet()].value =
 									v_mem[instruction.oprand1.get_sizet()].get_doub() +
 									atof(v_mem[instruction.oprand2.get_sizet()].get_str().c_str());
@@ -308,7 +308,7 @@ public:
 							}
 							break;
 						case STRING:
-							
+
 							v_mem[instruction.result.get_sizet()].op_type = STRING;
 							switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 							{
@@ -328,11 +328,11 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type)
 						{
 						case DOUBLE:
-							
+
 							v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 							v_mem[instruction.result.get_sizet()].value =
 								v_mem[instruction.oprand1.get_sizet()].get_doub() +
@@ -359,7 +359,7 @@ public:
 								atof(instruction.oprand2.get_str().c_str());
 							break;
 						case STRING:
-							
+
 							v_mem[instruction.result.get_sizet()].op_type = STRING;
 							v_mem[instruction.result.get_sizet()].value =
 								v_mem[instruction.oprand1.get_sizet()].get_str() +
@@ -368,15 +368,15 @@ public:
 						}
 						break;
 					}
-					} 
+					}
 					break;
 				}
 				case DOUBLE: {
-					
+
 					switch (instruction.oprand2.op_type)
 					{
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 						{
 						case DOUBLE:
@@ -395,7 +395,7 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() +
@@ -403,22 +403,22 @@ public:
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() +
 							atof(instruction.oprand2.get_str().c_str());
 						break;
 					}
-					} 
+					}
 					break;
 				}
 				case STRING: {
-					
+
 					switch (instruction.oprand2.op_type)
 					{
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 						{
 						case DOUBLE:
@@ -437,7 +437,7 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = STRING;
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_str() +
@@ -445,14 +445,14 @@ public:
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = STRING;
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_str() +
 							instruction.oprand2.get_str();
 						break;
 					}
-					} 
+					}
 					break;
 				}
 				}
@@ -469,12 +469,12 @@ public:
 					switch (instruction.oprand2.op_type)
 					{
 					case ADDR: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type)
 						{
 						case DOUBLE:
-							
+
 							switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 							{
 							case DOUBLE:
@@ -492,7 +492,7 @@ public:
 							}
 							break;
 						case STRING:
-							
+
 							switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 							{
 							case DOUBLE:
@@ -512,7 +512,7 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type)
 						{
@@ -532,7 +532,7 @@ public:
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type)
 						{
@@ -551,16 +551,16 @@ public:
 						}
 						break;
 					}
-					} 
+					}
 					break;
 				}
 				case DOUBLE: {
-					
+
 					v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 					switch (instruction.oprand2.op_type)
 					{
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 						{
 						case DOUBLE:
@@ -579,29 +579,29 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() -
 							instruction.oprand2.get_doub();
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() -
 							atof(instruction.oprand2.get_str().c_str());
 						break;
 					}
-					} 
+					}
 					break;
 				}
 				case STRING: {
-					
+
 					v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 					switch (instruction.oprand2.op_type)
 					{
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type)
 						{
 						case DOUBLE:
@@ -620,14 +620,14 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							atof(instruction.oprand1.get_str().c_str()) -
 							instruction.oprand2.get_doub();
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							atof(instruction.oprand1.get_str().c_str()) -
 							atof(instruction.oprand2.get_str().c_str());
@@ -636,7 +636,7 @@ public:
 					}
 					break;
 				}
-				} 
+				}
 				break;
 			}
 
@@ -644,10 +644,10 @@ public:
 			case MULTI: {
 				switch (instruction.oprand1.op_type) {
 				case ADDR: {
-					
+
 					switch (instruction.oprand2.op_type) {
 					case ADDR: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type) {
 						case DOUBLE: {
@@ -690,7 +690,7 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type) {
 						case DOUBLE:
@@ -709,7 +709,7 @@ public:
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type) {
 						case DOUBLE:
@@ -731,11 +731,11 @@ public:
 					break;
 				}
 				case DOUBLE: {
-					
+
 					v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 					switch (instruction.oprand2.op_type) {
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type) {
 						case DOUBLE:
 
@@ -753,14 +753,14 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() *
 							instruction.oprand2.get_doub();
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() *
 							atof(instruction.oprand2.get_str().c_str());
@@ -770,11 +770,11 @@ public:
 					break;
 				}
 				case STRING: {
-					
+
 					v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 					switch (instruction.oprand2.op_type) {
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type) {
 						case DOUBLE:
 
@@ -792,14 +792,14 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							atof(instruction.oprand1.get_str().c_str()) *
 							instruction.oprand2.get_doub();
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							atof(instruction.oprand1.get_str().c_str()) *
 							atof(instruction.oprand2.get_str().c_str());
@@ -815,10 +815,10 @@ public:
 			case DIVIDE: {
 				switch (instruction.oprand1.op_type) {
 				case ADDR: {
-					
+
 					switch (instruction.oprand2.op_type) {
 					case ADDR: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type) {
 						case DOUBLE: {
@@ -861,7 +861,7 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type) {
 						case DOUBLE:
@@ -880,7 +880,7 @@ public:
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 						switch (v_mem[instruction.oprand1.get_sizet()].op_type) {
 						case DOUBLE:
@@ -902,11 +902,11 @@ public:
 					break;
 				}
 				case DOUBLE: {
-					
+
 					v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 					switch (instruction.oprand2.op_type) {
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type) {
 						case DOUBLE:
 
@@ -924,14 +924,14 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() /
 							instruction.oprand2.get_doub();
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							instruction.oprand1.get_doub() /
 							atof(instruction.oprand2.get_str().c_str());
@@ -941,11 +941,11 @@ public:
 					break;
 				}
 				case STRING: {
-					
+
 					v_mem[instruction.result.get_sizet()].op_type = DOUBLE;
 					switch (instruction.oprand2.op_type) {
 					case ADDR: {
-						
+
 						switch (v_mem[instruction.oprand2.get_sizet()].op_type) {
 						case DOUBLE:
 
@@ -963,14 +963,14 @@ public:
 						break;
 					}
 					case DOUBLE: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							atof(instruction.oprand1.get_str().c_str()) /
 							instruction.oprand2.get_doub();
 						break;
 					}
 					case STRING: {
-						
+
 						v_mem[instruction.result.get_sizet()].value =
 							atof(instruction.oprand1.get_str().c_str()) /
 							atof(instruction.oprand2.get_str().c_str());

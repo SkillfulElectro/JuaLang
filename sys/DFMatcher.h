@@ -42,7 +42,7 @@ struct TokenDFA {
 struct DFMatcherRes {
 	DFMatcherResCode status;
 	DFActionType token_identifier;
-	std::string value;
+	std::string_view value;
 };
 
 /// <summary>
@@ -80,7 +80,7 @@ public:
 	/// <param name="ignore"> tells the engine do not report this token </param>
 	/// <param name="token_name"></param>
 	/// <returns>index of token in the engine</returns>
-	size_t create_word_token(const std::string& word ,DFActionType token_identi , bool ignore = false) {
+	size_t create_word_token(const std::string& word, DFActionType token_identi, bool ignore = false) {
 		size_t res = tokens.size();
 
 		TokenDFA token;
@@ -102,7 +102,7 @@ public:
 		token.ignore = ignore;
 		token.token_identifier = token_identi;
 		tokens.push_back(token);
-		
+
 
 		return res;
 	}
@@ -114,9 +114,9 @@ public:
 	/// <param name="finals"></param>
 	/// <param name="ignore"></param>
 	/// <returns> index of the token in the engine </returns>
-	size_t insert_token_as_str(const std::string& token_dfa 
-		, std::unordered_set<std::string> finals 
-		, DFActionType token_ident 
+	size_t insert_token_as_str(const std::string& token_dfa
+		, std::unordered_set<std::string> finals
+		, DFActionType token_ident
 		, bool ignore = false) {
 
 		std::string state_name;
@@ -164,19 +164,18 @@ public:
 		, size_t& buffer_index) {
 
 		DFMatcherRes result;
-		
+
 		while (true) {
 
 			size_t max_len = 0;
 			DFActionType max_token_ident = DFActionType(0);
-			std::string max_value = "";
 			size_t token_ind = 0;
 
 			for (size_t token_index{ 0 }; token_index < tokens.size(); ++token_index) {
 				std::string state = tokens[token_index].start_state;
 				TokenDFA& token = tokens[token_index];
 
-				std::string value = "";
+
 				size_t len = 0;
 
 				for (size_t buf_index{ buffer_index }; buf_index < buffer.length(); ++buf_index) {
@@ -185,7 +184,6 @@ public:
 					}
 
 					state = token.dfa[state][buffer[buf_index]];
-					value += buffer[buf_index];
 					++len;
 				}
 
@@ -194,12 +192,11 @@ public:
 						max_len = len;
 						max_token_ident = token.token_identifier;
 						token_ind = token_index;
-						max_value = value;
 					}
 				}
 			}
 
-
+			std::string_view max_view(buffer.data() + buffer_index , max_len);
 			buffer_index += max_len;
 
 			if (tokens[token_ind].ignore && buffer_index < buffer.length()) {
@@ -215,8 +212,7 @@ public:
 			}
 
 			result.token_identifier = max_token_ident;
-			result.value = max_value;
-
+			result.value = max_view;
 
 			return result;
 		}

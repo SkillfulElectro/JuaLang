@@ -1009,7 +1009,7 @@ DFActionFlow JuaLang::if_scope_handler_action(
 		}
 		stack.pop_back();
 
-		stack.push_back({ ELSE , bytecode.size()});
+		stack.push_back({ ELSE , bytecode.size() });
 		bytecode.push_back("");
 
 		code << "jmpf" << " " << get_dfval_str(expr_addr.value) << " " << bytecode.size() << " " << ";";
@@ -1071,7 +1071,7 @@ DFActionFlow JuaLang::chain_handler_action(
 				break;
 			}
 
-			
+
 
 			if (!stack.empty()) {
 				back = stack.back();
@@ -1091,7 +1091,7 @@ DFActionFlow JuaLang::chain_handler_action(
 
 		for (auto& val : elses) {
 			bytecode[get_sizet(val.value)] = code.str();
- 		}
+		}
 
 		return { DFACTION_BACK_TO_PREV , DFActionState(0) };
 	}
@@ -1321,7 +1321,7 @@ DFActionFlow JuaLang::function_def_scope_action(
 				test_jmp[1].value = std::to_string(std::stoull(test_jmp[1].value) - get_sizet(index.value));
 
 				val = test_jmp[0].value + " " + test_jmp[1].value + " " + test_jmp[2].value + " " + test_jmp[3].value;
- 				break;
+				break;
 			case JUMPF:
 				test_jmp[2].value = std::to_string(std::stoull(test_jmp[2].value) - get_sizet(index.value));
 
@@ -1413,7 +1413,7 @@ DFActionFlow JuaLang::n_func_handler_action(
 
 			std::string instruction;
 
-			for (size_t i{ 0 };i<instructions.size();++i) {
+			for (size_t i{ 0 }; i < instructions.size(); ++i) {
 
 				auto& instruct = instructions[i];
 
