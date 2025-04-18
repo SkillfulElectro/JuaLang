@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-#include "DFAction_types.h"
+#include "DFAction_Types.h"
 
 enum DFActionReturnCode {
 	ALL_REDUCTIONS_ARE_COMPLETED,
