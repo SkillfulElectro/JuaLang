@@ -3,6 +3,8 @@
 #define MUTEXIS_DFACTION
 
 #include <unordered_map>
+#include <iostream>
+#include <vector>
 
 #include "DFAction_Types.h"
 
@@ -18,6 +20,7 @@ enum DFActionFlowCode {
 	DFACTION_DO_NOT_CHANGE_STATE = -1,
 	DFACTION_PANIC = -2,
 	DFACTION_BACK_TO_PREV = -3,
+	DFACTION_COMPILE_DONE = 2,
 };
 
 struct DFActionFlow {
@@ -88,6 +91,9 @@ protected:
 
 			DFActionFlow change_state = action_function(index , tokens , state, next_index);
 
+			if (next_index)
+			++index;
+
 			if (change_state.code == DFACTION_PANIC) {
 				std::cout << "PANIC";
 				break;
@@ -108,11 +114,9 @@ protected:
 			}
 			else if (change_state.code != DFACTION_DO_NOT_CHANGE_STATE) {
 				state =  dfa[state][tokens[index].type];
+			} else if (change_state.code == DFACTION_COMPILE_DONE) {
+				break;
 			}
-
-
-			if (next_index)
-				++index;
 		}
 
 		if (!dfa_stack.empty()) {
