@@ -9,11 +9,11 @@
 #include <vector>
 #include <sstream>
 
-#include "DFAction_Types.h"
 
 enum DFMatcherResCode {
 	SUCCESS,
 	END_OF_FILE,
+	NO_MATCHED_TOKEN,
 };
 
 
@@ -22,7 +22,7 @@ struct TokenDFA {
 	std::string start_state;
 	std::unordered_set<std::string> final_states;
 	bool ignore = false;
-	DFActionType token_identifier;
+    int token_identifier;
 
 
 	void add_ASCII_range(std::string state, char start, char end, std::string next_state) {
@@ -41,7 +41,7 @@ struct TokenDFA {
 
 struct DFMatcherRes {
 	DFMatcherResCode status;
-	DFActionType token_identifier;
+    int token_identifier;
 	std::string_view value;
 };
 
@@ -80,7 +80,7 @@ public:
 	/// <param name="ignore"> tells the engine do not report this token </param>
 	/// <param name="token_name"></param>
 	/// <returns>index of token in the engine</returns>
-	size_t create_word_token(const std::string& word, DFActionType token_identi, bool ignore = false) {
+	size_t create_word_token(const std::string& word,   int token_identi, bool ignore = false) {
 		size_t res = tokens.size();
 
 		TokenDFA token;
@@ -116,7 +116,7 @@ public:
 	/// <returns> index of the token in the engine </returns>
 	size_t insert_token_as_str(const std::string& token_dfa
 		, std::unordered_set<std::string> finals
-		, DFActionType token_ident
+		,   int token_ident
 		, bool ignore = false) {
 
 		std::string state_name;
@@ -168,7 +168,7 @@ public:
 		while (true) {
 
 			size_t max_len = 0;
-			DFActionType max_token_ident = DFActionType(0);
+		    int max_token_ident =  int(0);
 			size_t token_ind = 0;
 
 			for (size_t token_index{ 0 }; token_index < tokens.size(); ++token_index) {
@@ -195,6 +195,10 @@ public:
 					}
 				}
 			}
+
+			if (max_len == 0 && buffer_index < buffer.length()) {
+				return DFMatcherRes{NO_MATCHED_TOKEN , -1 , 0};
+            }
 
 			std::string_view max_view(buffer.data() + buffer_index , max_len);
 			buffer_index += max_len;
