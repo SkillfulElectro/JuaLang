@@ -11,7 +11,7 @@ DFActionFlow JuaLang::start_action(
 	{
 	case IDENT: {
 		stack.push_back(token);
-		break;
+		return {DFACTION_GO_TO_SP_DFA , IDENTER};
 	}
 	case RETURN:
 		go_next_index = false;
@@ -24,13 +24,14 @@ DFActionFlow JuaLang::start_action(
 		return { DFACTION_GO_TO_SP_DFA , WHILE_HANDLER };
 	case IF:
 		go_next_index = false;
-		return { DFACTION_GO_TO_SP_DFA , CHAIN_HANLDER };
+		return { DFACTION_GO_TO_SP_DFA , ELIF_CHAIN_HANLDER };
 	case OP_BRACE:
 		go_next_index = false;
 		return { DFACTION_GO_TO_SP_DFA , SCOPE_HANDLER };
-	case FUNCTION:
+	case MACRO: // inline functions are macros from now on !
+	case FUNCTION: // this case is not implemented yet !
 		go_next_index = false;
-		return { DFACTION_GO_TO_SP_DFA , FUNCTION_DEF_HANDLER };
+		return { DFACTION_GO_TO_SP_DFA , MACRO_DEF_HANDLER };
 	case CONTINUE:
 		stack.push_back({ CONTINUE , bytecode.size() });
 		bytecode.push_back("");
@@ -63,7 +64,7 @@ DFActionFlow JuaLang::identer_action(
 		auto ident = stack.back();
 
 		if (functions_code.find(get_dfval_str(ident.value)) != functions_code.end()) {
-			return { DFACTION_GO_TO_SP_DFA , N_FUNC_HANDLER };
+			return { DFACTION_GO_TO_SP_DFA , MACRO_CALL_HANDLER };
 		}
 		else {
 
@@ -113,6 +114,8 @@ DFActionFlow JuaLang::identer_action(
 				break;
 			}
 		}
+
+		return {DFACTION_BACK_TO_PREV , DFActionState(0)};
 	}
 	}
 
@@ -580,7 +583,7 @@ DFActionFlow JuaLang::expr_func_router_action(
 		auto ident = stack.back();
 
 		if (functions_code.find(get_dfval_str(ident.value)) != functions_code.end()) {
-			return { DFACTION_GO_TO_SP_DFA , N_FUNC_HANDLER };
+			return { DFACTION_GO_TO_SP_DFA , MACRO_CALL_HANDLER };
 		}
 		else {
 
@@ -1031,7 +1034,7 @@ DFActionFlow JuaLang::if_scope_handler_action(
 	}
 }
 
-DFActionFlow JuaLang::chain_handler_action(
+DFActionFlow JuaLang::elif_chain_handler_action(
 	size_t& index_in_tokens
 	, const std::vector<DFActionToken>& tokens
 	, bool& go_next_index) {
@@ -1186,7 +1189,7 @@ DFActionFlow JuaLang::scope_handler_action(
 	return { DFActionFlowCode::DFACTION_PANIC , DFActionState(0) };
 }
 
-DFActionFlow JuaLang::function_def_handler_action(
+DFActionFlow JuaLang::macro_def_handler_action(
 	size_t& index_in_tokens
 	, const std::vector<DFActionToken>& tokens
 	, bool& go_next_index) {
@@ -1196,6 +1199,7 @@ DFActionFlow JuaLang::function_def_handler_action(
 
 	switch (token.type)
 	{
+	case MACRO:
 	case FUNCTION:
 		scopes.create_new_scope();
 		scopes.activate_func_style();
@@ -1210,7 +1214,7 @@ DFActionFlow JuaLang::function_def_handler_action(
 	return { DFActionFlowCode::DFACTION_SAFE , DFActionState(0) };
 }
 
-DFActionFlow JuaLang::function_def_ident_action(
+DFActionFlow JuaLang::macro_def_ident_action(
 	size_t& index_in_tokens
 	, const std::vector<DFActionToken>& tokens
 	, bool& go_next_index) {
@@ -1231,7 +1235,7 @@ DFActionFlow JuaLang::function_def_ident_action(
 	return { DFActionFlowCode::DFACTION_SAFE , DFActionState(0) };
 }
 
-DFActionFlow JuaLang::function_def_para_action(
+DFActionFlow JuaLang::macro_def_para_action(
 	size_t& index_in_tokens
 	, const std::vector<DFActionToken>& tokens
 	, bool& go_next_index) {
@@ -1245,11 +1249,11 @@ DFActionFlow JuaLang::function_def_para_action(
 	{
 	case OP_PARAN:
 	{
-		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , FUNC_PARA_VARS };
+		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , MACRO_PARA_VARS };
 	}
 	case CAMMA:
 	{
-		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , FUNC_PARA_VARS };
+		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , MACRO_PARA_VARS };
 	}
 	case CLOSE_PARAN: {
 		break;
@@ -1261,7 +1265,7 @@ DFActionFlow JuaLang::function_def_para_action(
 	return { DFActionFlowCode::DFACTION_SAFE , DFActionState(0) };
 }
 
-DFActionFlow JuaLang::function_para_vars_action(
+DFActionFlow JuaLang::macro_para_vars_action(
 	size_t& index_in_tokens
 	, const std::vector<DFActionToken>& tokens
 	, bool& go_next_index) {
@@ -1287,7 +1291,7 @@ DFActionFlow JuaLang::function_para_vars_action(
 	}
 }
 
-DFActionFlow JuaLang::function_def_scope_action(
+DFActionFlow JuaLang::macro_def_scope_action(
 	size_t& index_in_tokens
 	, const std::vector<DFActionToken>& tokens
 	, bool& go_next_index) {
@@ -1346,7 +1350,7 @@ DFActionFlow JuaLang::function_def_scope_action(
 	}
 }
 
-DFActionFlow JuaLang::n_func_handler_action(
+DFActionFlow JuaLang::macro_call_handler_action(
 	size_t& index_in_tokens
 	, const std::vector<DFActionToken>& tokens
 	, bool& go_next_index) {
@@ -1382,6 +1386,7 @@ DFActionFlow JuaLang::n_func_handler_action(
 		std::vector<DFActionToken> expr_vals;
 		expr_vals.push_back(stack.back());
 
+
 		stack.pop_back();
 
 		if (expr_vals.back().type != ASSIGN) {
@@ -1405,9 +1410,11 @@ DFActionFlow JuaLang::n_func_handler_action(
 
 			for (size_t i{ 0 }, j{ expr_vals.size() - 1 }; i < expr_vals.size(); ++i, --j) {
 				addrs[func.paras_addrs[i]] = get_dfval_str(expr_vals[j].value);
+
 			}
 
 			auto instructions = comp_lexer.insert_bytecode(func.func_code);
+
 
 			size_t func_start = bytecode.size();
 

@@ -18,7 +18,7 @@ class JuaCompileTimeLexer {
 		switch (res.token_identifier)
 		{
 		default:
-			oprand.op_type = res.token_identifier;
+			oprand.op_type = DFActionType(res.token_identifier);
 			oprand.value = res.value;
 
 			break;

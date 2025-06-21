@@ -90,7 +90,7 @@ JuaScopeRes JuaScope::get_new_addr(const std::string& var) {
 			if (scope.main_vars == scopes.back().main_vars) {
 
 				if (main_vars.find(var) != main_vars.end()) {
-					return { JuaScopeStatus::JSCOPE_SUCCESS ,"$" + std::to_string(main_vars[var]) , "" };
+					return { JuaScopeStatus::JSCOPE_SUCCESS ,"$" + std::to_string(main_vars[var] - func_style_start_ind) , "" };
 				}
 			}
 		}

@@ -124,7 +124,7 @@ private:
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
-	DFActionFlow chain_handler_action(
+	DFActionFlow elif_chain_handler_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
@@ -134,32 +134,32 @@ private:
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
-	DFActionFlow function_def_handler_action(
+	DFActionFlow macro_def_handler_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
-	DFActionFlow function_def_ident_action(
+	DFActionFlow macro_def_ident_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
-	DFActionFlow function_def_para_action(
+	DFActionFlow macro_def_para_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
-	DFActionFlow function_para_vars_action(
+	DFActionFlow macro_para_vars_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
-	DFActionFlow function_def_scope_action(
+	DFActionFlow macro_def_scope_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
-	DFActionFlow n_func_handler_action(
+	DFActionFlow macro_call_handler_action(
 		size_t& index_in_tokens
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);

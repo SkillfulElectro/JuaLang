@@ -52,20 +52,20 @@ DFActionFlow JuaLang::action_function(
 		return if_scope_handler_action(index_in_tokens, tokens, go_next_index);
 	case SCOPE_HANDLER:
 		return scope_handler_action(index_in_tokens, tokens, go_next_index);
-	case FUNCTION_DEF_HANDLER:
-		return function_def_handler_action(index_in_tokens, tokens, go_next_index);
-	case FUNCTION_DEF_IDENT:
-		return function_def_ident_action(index_in_tokens, tokens, go_next_index);
-	case FUNCTION_PARA_HANDLER:
-		return function_def_para_action(index_in_tokens, tokens, go_next_index);
-	case FUNC_PARA_VARS:
-		return function_para_vars_action(index_in_tokens, tokens, go_next_index);
-	case FUNCTION_DEF_SCOPE:
-		return function_def_scope_action(index_in_tokens, tokens, go_next_index);
-	case N_FUNC_HANDLER:
-		return n_func_handler_action(index_in_tokens, tokens, go_next_index);
-	case CHAIN_HANLDER:
-		return chain_handler_action(index_in_tokens, tokens, go_next_index);
+	case MACRO_DEF_HANDLER:
+		return macro_def_handler_action(index_in_tokens, tokens, go_next_index);
+	case MACRO_DEF_IDENT:
+		return macro_def_ident_action(index_in_tokens, tokens, go_next_index);
+	case MACRO_PARA_HANDLER:
+		return macro_def_para_action(index_in_tokens, tokens, go_next_index);
+	case MACRO_PARA_VARS:
+		return macro_para_vars_action(index_in_tokens, tokens, go_next_index);
+	case MACRO_DEF_SCOPE:
+		return macro_def_scope_action(index_in_tokens, tokens, go_next_index);
+	case MACRO_CALL_HANDLER:
+		return macro_call_handler_action(index_in_tokens, tokens, go_next_index);
+	case ELIF_CHAIN_HANLDER:
+		return elif_chain_handler_action(index_in_tokens, tokens, go_next_index);
 	case ELSE_HANDLER:
 		return else_handler_action(index_in_tokens, tokens, go_next_index);
 	default:
@@ -88,10 +88,11 @@ std::string JuaLang::compile(const std::string& buffer) {
 
 		DFActionToken tok;
 		tok.value = std::string(res.value);
-		tok.type = res.token_identifier;
+		tok.type = DFActionType(res.token_identifier);
 
 		tokens.push_back(tok);
 	} while (res.status != END_OF_FILE);
+
 
 	auto comp_res = this->run_dfa_on(tokens, START);
 

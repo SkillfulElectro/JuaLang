@@ -4,18 +4,19 @@ void JuaLang::init_dfaction() {
 	dfa[START][IDENT] = IDENTER;
 	dfa[START][CONTINUE] = START;
 	dfa[START][BREAK] = START;
-	dfa[IDENTER][SEMICOLON] = START;
 
 	this->add_special_dfa(START, dfa);
 
-	DFA function_def_handler;
-	function_def_handler[FUNCTION_DEF_HANDLER][FUNCTION] = FUNCTION_DEF_IDENT;
-	function_def_handler[FUNCTION_DEF_IDENT][IDENT] = FUNCTION_PARA_HANDLER;
-	function_def_handler[FUNCTION_PARA_HANDLER][CLOSE_PARAN] = FUNCTION_DEF_SCOPE;
-	this->add_special_dfa(FUNCTION_DEF_HANDLER, function_def_handler);
+	DFA macro_def_handler;
+	// will be changed in future
+	macro_def_handler[MACRO_DEF_HANDLER][FUNCTION] = MACRO_DEF_IDENT;
+	macro_def_handler[MACRO_DEF_HANDLER][MACRO] = MACRO_DEF_IDENT;
+	macro_def_handler[MACRO_DEF_IDENT][IDENT] = MACRO_PARA_HANDLER;
+	macro_def_handler[MACRO_PARA_HANDLER][CLOSE_PARAN] = MACRO_DEF_SCOPE;
+	this->add_special_dfa(MACRO_DEF_HANDLER, macro_def_handler);
 
 	DFA func_para_vars;
-	this->add_special_dfa(FUNC_PARA_VARS, func_para_vars);
+	this->add_special_dfa(MACRO_PARA_VARS, func_para_vars);
 
 	DFA while_handler;
 	while_handler[WHILE_HANDLER][CLOSE_PARAN] = WHILE_SCOPE;
@@ -29,13 +30,13 @@ void JuaLang::init_dfaction() {
 	this->add_special_dfa(IF_SCOPE, if_scope_handler);
 
 	DFA chain_handler;
-	chain_handler[CHAIN_HANLDER][ELSE] = ELSE_HANDLER;
-	chain_handler[ELSE_HANDLER][IF] = CHAIN_HANLDER;
-	this->add_special_dfa(CHAIN_HANLDER, chain_handler);
+	chain_handler[ELIF_CHAIN_HANLDER][ELSE] = ELSE_HANDLER;
+	chain_handler[ELSE_HANDLER][IF] = ELIF_CHAIN_HANLDER;
+	this->add_special_dfa(ELIF_CHAIN_HANLDER, chain_handler);
 
 
 	DFA n_func_handler;
-	this->add_special_dfa(N_FUNC_HANDLER, n_func_handler);
+	this->add_special_dfa(MACRO_CALL_HANDLER, n_func_handler);
 
 	DFA func_handler;
 	this->add_special_dfa(FUNC_HANDLER, func_handler);
@@ -128,6 +129,8 @@ void JuaLang::init_lexer() {
 	lexer.create_word_token("return", RETURN, false);
 
 	lexer.create_word_token("function", FUNCTION, false);
+	lexer.create_word_token("macro", MACRO, false);
+
 
 	lexer.create_word_token("if", IF, false);
 	lexer.create_word_token("else", ELSE, false);

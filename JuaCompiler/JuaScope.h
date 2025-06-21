@@ -6,6 +6,8 @@
 #include <unordered_map>
 
 #include <iostream>
+#include <vector>
+
 
 enum JuaScopeStatus {
 	JSCOPE_NOT_FOUND,
