@@ -39,21 +39,21 @@ class JuaInterpter {
 		switch (res.token_identifier)
 		{
 		case ADDR:
-			oprand.op_type = res.token_identifier;
+			oprand.op_type = DFActionType(res.token_identifier);
 			oprand.value = std::stoul(std::string(res.value));
 
 			break;
 		case DOUBLE:
-			oprand.op_type = res.token_identifier;
+			oprand.op_type = DFActionType(res.token_identifier);
 			oprand.value = atof(std::string(res.value).substr(1).c_str());
 			break;
 		case STRING:
-			oprand.op_type = res.token_identifier;
+			oprand.op_type = DFActionType(res.token_identifier);
 			oprand.value = std::string(res.value).substr(1, res.value.length() - 2);
 			break;
 		case EMPTY:
 		case FUNC_IDENT:
-			oprand.op_type = res.token_identifier;
+			oprand.op_type = DFActionType(res.token_identifier);
 			oprand.value = std::string(res.value);
 			break;
 		}
@@ -1016,7 +1016,7 @@ public:
 			switch (inst_val)
 			{
 			case 0:
-				instruction.job = res.token_identifier;
+				instruction.job = DFActionType(res.token_identifier);
 				break;
 			case 1:
 				instruction.oprand1 = convert_DFMatcherRes(res);
