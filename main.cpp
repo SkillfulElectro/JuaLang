@@ -28,105 +28,29 @@ int main() {
 	instance.add_extension("print", &zed::jua_extension_func, &test2);
 	cinstance.set_interpter(&instance);
 
+	std::cout << "starting to compile \n";
+
 	std::string code = cinstance.compile(
 		R"(
-function doz() {
-	if (1) {
-		print("test functions");
-	}
-}
-
 hi = 3;
-if(hi - 2)
-{ 
-	doz();
-	print("if state");
-	while (hi) {
-		hi = hi - 1;
-		print(hi);
-		if (hi - 1) {
-			print("test");
-			break;
-		}
-	}
-} else if ( hi - 1 ) {
-	print("else if state");
-	
-	doz();
-	while (hi) {
-		hi = hi - 1;
-		print(hi);
-		if (hi - 1) {
-			print("test");
-			break;
-		}
-	}
-} else {
-	print("else state");
 
-	doz();
-	while (hi + 1) {
-		hi = hi - 1;
-		print(hi);
-		if (hi + 2) {
-			print("test");
-			continue;
-		}
-	}
+macro goz(z) {
+	hi = z + hi;
+	print(hi);
 }
 
-doz();
-
-function bruh() {
-	doz();
-}
+goz(1);
 
 
-if(hi - 2)
-{ 
-	doz();
-	print("if state");
-	while (hi) {
-		hi = hi - 1;
-		print(hi);
-		if (hi - 1) {
-			print("test");
-			break;
-		}
-	}
-} else if ( hi - 1 ) {
-	print("else if state");
-	
-	doz();
-	while (hi) {
-		hi = hi - 1;
-		print(hi);
-		if (hi - 1) {
-			print("test");
-			break;
-		}
-	}
-} else {
-	print("else state");
-	doz();
-	while (hi + 1) {
-		hi = hi - 1;
-		print(hi);
-		if (hi + 2) {
-			print("test");
-			continue;
-		}
-	}
-}
-
-bruh();
 
 return hi;
 )");
+	
+	std::cout << code << '\n';
 
 	instance.insert_bytecode(code);
 
-	std::cout << instance.run_instructions()[0].get_doub();
+	std::cout << instance.run_instructions()[0].get_doub() << "\n";
 
 	return 0;
 }
