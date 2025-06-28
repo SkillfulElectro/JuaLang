@@ -15,6 +15,7 @@ add_executable(JuaTest
     JuaCompiler/JuaLangUtilFuncs.cpp
     JuaCompiler/JuaLangInitFuncs.cpp
     JuaCompiler/JuaLangActionFuncs.cpp
+    JuaCompiler/JuaMacroScope.cpp
     JuaInterpter/JuaInterpter_Types.cpp
 )
 

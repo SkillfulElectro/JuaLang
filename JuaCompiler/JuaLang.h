@@ -5,6 +5,7 @@
 #include "JuaLangTypes.h"
 #include "JuaNativeFunc.h"
 #include "JuaInterpter.h"
+#include "JuaMacroScope.h"
 
 class JuaLang : public DFAction {
 
@@ -23,7 +24,7 @@ private:
 
 	JuaCompileTimeLexer comp_lexer;
 
-	std::unordered_map<std::string, JuaFuncDef> functions_code;
+	JuaMacroScopeManager macros_code;
 
 	JuaInterpter* interpter;
 
@@ -175,23 +176,11 @@ protected:
 	) override;
 
 public:
-	JuaLang() {
-		init_lexer();
-		init_dfaction();
-		scopes.create_new_scope();
-		interpter = nullptr;
-		func_return = false;
-	}
+	JuaLang();
 
-	~JuaLang() {}
+	void set_interpter(JuaInterpter* interpter) ;
 
-	void set_interpter(JuaInterpter* interpter) {
-		this->interpter = interpter;
-	}
-
-	void unset_interpter() {
-		this->interpter = nullptr;
-	}
+	void unset_interpter();
 
 	std::string compile(const std::string& buffer);
 };

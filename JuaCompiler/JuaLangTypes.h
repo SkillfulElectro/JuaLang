@@ -76,9 +76,5 @@ using DFActionVal = std::variant<std::string, double, size_t>;
 #include "DFAction.h"
 #include "JuaScope.h"
 
-struct JuaFuncDef {
-	std::string func_code;
-	std::vector<std::string> paras_addrs;
-};
 
 #endif // !JUALANG_TYPES

@@ -8,6 +8,8 @@
 #include <iostream>
 #include <vector>
 
+#include "JuaMacroScope.h"
+
 
 enum JuaScopeStatus {
 	JSCOPE_NOT_FOUND,

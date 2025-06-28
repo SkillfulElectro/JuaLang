@@ -34,13 +34,16 @@ int main() {
 		R"(
 hi = 3;
 
-macro goz(z) {
+macro doz(z) {
 	hi = z + hi;
-	print(hi);
+	macro boz() {
+		hi = hi + 5;
+	}
+
+	boz();
 }
 
 goz(1);
-
 
 
 return hi;

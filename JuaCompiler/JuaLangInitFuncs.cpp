@@ -1,6 +1,7 @@
 #include "JuaLang.h"
 
-void JuaLang::init_dfaction() {
+void JuaLang::init_dfaction()
+{
 	dfa[START][IDENT] = IDENTER;
 	dfa[START][CONTINUE] = START;
 	dfa[START][BREAK] = START;
@@ -34,7 +35,6 @@ void JuaLang::init_dfaction() {
 	chain_handler[ELSE_HANDLER][IF] = ELIF_CHAIN_HANLDER;
 	this->add_special_dfa(ELIF_CHAIN_HANLDER, chain_handler);
 
-
 	DFA n_func_handler;
 	this->add_special_dfa(MACRO_CALL_HANDLER, n_func_handler);
 
@@ -64,7 +64,8 @@ void JuaLang::init_dfaction() {
 	new_dfa(&dfa);
 }
 
-void JuaLang::init_lexer() {
+void JuaLang::init_lexer()
+{
 
 	TokenDFA ident;
 	ident.start_state = "0";
@@ -97,14 +98,14 @@ void JuaLang::init_lexer() {
 	num.token_identifier = CONST_DOUBLE;
 	num.ignore = false;
 	num.add_ASCII_range("0", '0', '9', "1");
-	num.add_ASCII_range("1", '0', '9', "1");;
+	num.add_ASCII_range("1", '0', '9', "1");
+	;
 	num.dfa["1"]['.'] = "2";
 	num.add_ASCII_range("2", '0', '9', "3");
 	num.add_ASCII_range("3", '0', '9', "3");
 	num.add_final_state("1");
 	num.add_final_state("3");
 	lexer.insert_token(num);
-
 
 	TokenDFA comment;
 	comment.ignore = true;
@@ -125,12 +126,10 @@ void JuaLang::init_lexer() {
 
 	lexer.insert_token(comment);
 
-
 	lexer.create_word_token("return", RETURN, false);
 
 	lexer.create_word_token("function", FUNCTION, false);
 	lexer.create_word_token("macro", MACRO, false);
-
 
 	lexer.create_word_token("if", IF, false);
 	lexer.create_word_token("else", ELSE, false);
@@ -148,4 +147,24 @@ void JuaLang::init_lexer() {
 	lexer.create_word_token("}", CLOSE_BRACE, false);
 	lexer.create_word_token(";", SEMICOLON, false);
 	lexer.create_word_token(",", CAMMA, false);
+}
+
+JuaLang::JuaLang()
+{
+	init_lexer();
+	init_dfaction();
+	macros_code.create_scope();
+	scopes.create_new_scope();
+	interpter = nullptr;
+	func_return = false;
+}
+
+void JuaLang::set_interpter(JuaInterpter *interpter)
+{
+	this->interpter = interpter;
+}
+
+void JuaLang::unset_interpter()
+{
+	this->interpter = nullptr;
 }

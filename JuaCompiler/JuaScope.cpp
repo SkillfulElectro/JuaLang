@@ -42,9 +42,9 @@ JuaScopeRes JuaScope::get_ident_name(std::string addr_s) {
 		addr = std::stoull(addr_s);
 	}
 
-	for (auto& scope : scopes) {
+	for (auto& scope{--scopes.end()} ; ; --scope) {
 
-		auto& main_vars = scope.main_vars;
+		auto& main_vars = scope->main_vars;
 
 		for (auto elm : main_vars) {
 			if (elm.second == addr) {
@@ -54,7 +54,12 @@ JuaScopeRes JuaScope::get_ident_name(std::string addr_s) {
 				return { JuaScopeStatus::JSCOPE_SUCCESS, std::to_string(elm.second), elm.first };
 			}
 		}
+
+		if (scope == scopes.begin()) {
+			break;
+		}
 	}
+
 
 	return { JuaScopeStatus::JSCOPE_NOT_FOUND , "0" , "" };
 }
