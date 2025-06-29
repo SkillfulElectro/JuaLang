@@ -5,8 +5,6 @@
 
 <h1 align="center">JuaLang</h1> 
 
-> language features are under examinations
-
 an experimental programming language which is written based on custom PDA style algorithm instead of algorithms like LALR(1) and etc
 
 ## Why Jua?
@@ -200,9 +198,8 @@ ret 1 ; ;
 
 ## TODO!
 - [x] lexer init
-- [x] Jua native macro creation
-- [x] Jua native macro calls
-- [ ] Jua native function call/creation
+- [x] Jua native function creation
+- [x] Jua native function calls
 - [x] function calls
 - [x] function return type
 - [x] mixing up functions and expr

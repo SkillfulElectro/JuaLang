@@ -35,6 +35,12 @@ public:
 	void* get_void_ptr();
 
 	~JuaOprand();
+
+  JuaOprand(const JuaOprand&) = default;
+  JuaOprand(JuaOprand&&) noexcept = default;
+  JuaOprand& operator=(const JuaOprand&) = default;
+  JuaOprand& operator=(JuaOprand&&) noexcept = default;
+
 };
 
 enum JuaStackType {

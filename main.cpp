@@ -17,7 +17,9 @@ public:
 		}
 		
 
-		return { VOID , this , [](void* smth){std::cout << "cleaning!\n";} };
+		return { VOID , this , [](void* smth){
+			std::cout << "cleaning!\n";
+		} };
 	}
 };
 
@@ -35,15 +37,16 @@ int main() {
 hi = 3;
 
 macro doz(z) {
-	hi = z + hi;
+	hi = hi + z;
+
 	macro boz() {
 		hi = hi + 5;
 	}
-
+	
 	boz();
 }
 
-doz(1);
+doz(hi);
 z = print(1);
 
 return hi;

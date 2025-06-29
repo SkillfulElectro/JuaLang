@@ -267,10 +267,10 @@ public:
 				case DOUBLE:
 					res.op_type = instruction.oprand1.op_type;
 					res.value = instruction.oprand1.value;
-					v_mem[instruction.result.get_sizet()] = res;
+					v_mem[instruction.result.get_sizet()] = std::move(res);
 					break;
 				case ADDR:
-					v_mem[instruction.result.get_sizet()] = v_mem[instruction.oprand1.get_sizet()];
+					v_mem[instruction.result.get_sizet()] = std::move(v_mem[instruction.oprand1.get_sizet()]);
 					break;
 				default:
 					break;
