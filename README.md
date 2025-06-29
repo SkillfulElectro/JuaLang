@@ -5,6 +5,8 @@
 
 <h1 align="center">JuaLang</h1> 
 
+> language features are under examinations
+
 an experimental programming language which is written based on custom PDA style algorithm instead of algorithms like LALR(1) and etc
 
 ## Why Jua?
