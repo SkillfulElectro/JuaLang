@@ -1,5 +1,25 @@
 #include "JuaInterpter_Types.h"
 
+JuaOprand::JuaOprand() {}
+
+JuaOprand::JuaOprand(std::function<void(void*)> destructor) {
+	this->cleaner = cleaner;
+}
+
+JuaOprand::JuaOprand(DFActionType type , std::variant<size_t, double, std::string , void*> data ,std::function<void(void*)> destructor) {
+	op_type = type;
+	value = data;
+	cleaner = destructor;
+}
+
+JuaOprand::~JuaOprand() {
+	if (op_type == VOID) {
+		if (cleaner) {
+			cleaner(std::get<void*>(value));
+		}
+	}
+}
+
 size_t JuaOprand::get_sizet() {
 	return std::get<size_t>(value);
 }

@@ -7,11 +7,24 @@
 
 #include <variant>
 #include <string>
+#include <functional>
+#include <iostream>
 
 class JuaOprand {
 public:
+	// do not use it with void types , you will leak mem
+	JuaOprand();
+
+	JuaOprand(std::function<void(void*)> destructor);
+
+	JuaOprand(DFActionType type , 
+		std::variant<size_t, double, std::string , void*> data ,
+		std::function<void(void*)> destructor = nullptr );
+
 	DFActionType op_type;
 	std::variant<size_t, double, std::string , void*> value;
+	// if set to void , it cleaner must be set or memory leak will happen
+	std::function<void(void*)> cleaner;
 
 	size_t get_sizet();
 
@@ -20,6 +33,8 @@ public:
 	std::string get_str();
 
 	void* get_void_ptr();
+
+	~JuaOprand();
 };
 
 enum JuaStackType {
@@ -41,6 +56,8 @@ struct JuaInstruction {
 	JuaOprand oprand1;
 	JuaOprand oprand2;
 	JuaOprand result;
+
+	JuaInstruction() : oprand1{nullptr} , oprand2{nullptr} , result{nullptr} {}
 };
 
 #include "DFMatcher.h"

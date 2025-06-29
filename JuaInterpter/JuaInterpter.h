@@ -28,13 +28,10 @@ class JuaInterpter {
 
 	std::vector<JuaExtension> extensions;
 
-	std::vector<size_t> destructors;
-	std::vector<JuaStackVal> to_destruct;
-
 	std::unordered_map<std::string, size_t> ext_table;
 
 	inline JuaOprand convert_DFMatcherRes(const DFMatcherRes& res) {
-		JuaOprand oprand;
+		JuaOprand oprand{nullptr};
 
 		switch (res.token_identifier)
 		{
@@ -123,7 +120,7 @@ public:
 					v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
 					stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 
-					to_destruct.push_back({ REF , &v_mem[instruction.result.get_sizet()] });
+
 
 					break;
 				}
@@ -131,8 +128,6 @@ public:
 					auto& func = extensions[instruction.oprand1.get_sizet()];
 					v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
 					stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
-
-					to_destruct.push_back({ REF , &v_mem[instruction.result.get_sizet()] });
 
 					break;
 				}
@@ -265,7 +260,7 @@ public:
 
 				break;
 			case ASSIGN: {
-				JuaOprand res;
+				JuaOprand res{nullptr};
 				switch (instruction.oprand1.op_type)
 				{
 				case STRING:
@@ -1117,21 +1112,6 @@ public:
 		}
 	}
 
-	/// these funcs will be called when instance goes out of the scope
-	/// its added to manage VOID data types
-	/// their return value will not be checked by the api
-	void add_instance_destructor(std::string& ext_func) {
-		if (ext_table.find(ext_func) != ext_table.end()) {
-			destructors.push_back(ext_table[ext_func]);
-		}
-	}
-
-	~JuaInterpter() {
-		for (auto& destructor : destructors) {
-			auto& func = extensions[destructor];
-			(func.obj->*func.func)(to_destruct);
-		}
-	}
 };
 
 #endif // !JUA_INTERPTER

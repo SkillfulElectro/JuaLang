@@ -15,9 +15,9 @@ public:
 			std::cout << oprand.get_doub() << "\n";
 			break;
 		}
+		
 
-
-		return { DOUBLE , 1.0 };
+		return { VOID , this , [](void* smth){std::cout << "cleaning!\n";} };
 	}
 };
 
@@ -44,7 +44,7 @@ macro doz(z) {
 }
 
 doz(1);
-
+z = print(1);
 
 return hi;
 )");
