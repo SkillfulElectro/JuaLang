@@ -43,7 +43,7 @@ macro doz(z) {
 	boz();
 }
 
-goz(1);
+doz(1);
 
 
 return hi;

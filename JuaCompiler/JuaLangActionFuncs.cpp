@@ -1192,9 +1192,11 @@ DFActionFlow JuaLang::scope_handler_action(
 	{
 	case OP_BRACE:
 		scopes.create_new_scope();
+		macros_code.create_scope();
 		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , START };
 	case CLOSE_BRACE:
 		scopes.destroy_scope();
+		macros_code.destroy_scope();
 		return { DFACTION_BACK_TO_PREV , DFActionState(0) };
 	}
 
