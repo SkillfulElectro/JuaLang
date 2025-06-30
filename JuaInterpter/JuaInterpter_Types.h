@@ -12,19 +12,19 @@
 class JuaOprand
 {
 public:
-	// do not use it with void types , you will leak mem
-	JuaOprand();
-
-	JuaOprand(std::function<void(void *)> destructor);
-
-	JuaOprand(DFActionType type,
-			  std::variant<size_t, double, std::string, void *> data,
-			  std::function<void(void *)> destructor = nullptr);
-
 	DFActionType op_type;
 	std::variant<size_t, double, std::string, void *> value;
-	// if set to void , it cleaner must be set or memory leak will happen
-	std::function<void(void *)> cleaner;
+
+public:
+	std::function<void(JuaOprand *)> destructor = nullptr;
+	std::function<JuaOprand &(JuaOprand *, JuaOprand &&)> move = nullptr;
+	std::function<JuaOprand &(JuaOprand *, JuaOprand &)> copy = nullptr;
+
+public:
+	JuaOprand() = default;
+	JuaOprand(DFActionType op_type , std::variant<size_t, double, std::string, void *> value);
+	JuaOprand(const JuaOprand &) = default;
+	JuaOprand(JuaOprand &&) noexcept = default;
 
 	size_t get_sizet();
 
@@ -36,28 +36,8 @@ public:
 
 	~JuaOprand();
 
-	JuaOprand(const JuaOprand &) = default;
-	JuaOprand(JuaOprand &&) noexcept = default;
-	JuaOprand &operator=(const JuaOprand &other) = default;
-	JuaOprand &operator=(JuaOprand &&other) noexcept
-	{
-		if (op_type == VOID)
-		{
-			if (cleaner)
-			{
-				cleaner(std::get<void *>(value));
-			}
-		}
-
-		op_type = other.op_type;
-		cleaner = other.cleaner;
-		value = other.value;
-
-		other.cleaner = nullptr;
-		other.value = nullptr;
-
-		return *this;
-	};
+	JuaOprand &operator=(JuaOprand &other);
+	JuaOprand &operator=(JuaOprand &&other) noexcept;
 };
 
 enum JuaStackType
@@ -82,8 +62,6 @@ struct JuaInstruction
 	JuaOprand oprand1;
 	JuaOprand oprand2;
 	JuaOprand result;
-
-	JuaInstruction() : oprand1{nullptr}, oprand2{nullptr}, result{nullptr} {}
 };
 
 #include "DFMatcher.h"

@@ -5,8 +5,11 @@
 
 #include <iostream>
 #include "JuaInterpter_Types.h"
+#include <functional>
 
 typedef JuaOprand(JuaModule::* JuaFunc)(std::vector<JuaStackVal>& oprands);
+
+
 
 struct JuaExtension {
 	JuaFunc func;
@@ -31,7 +34,7 @@ class JuaInterpter {
 	std::unordered_map<std::string, size_t> ext_table;
 
 	inline JuaOprand convert_DFMatcherRes(const DFMatcherRes& res) {
-		JuaOprand oprand{nullptr};
+		JuaOprand oprand;
 
 		switch (res.token_identifier)
 		{
@@ -260,7 +263,7 @@ public:
 
 				break;
 			case ASSIGN: {
-				JuaOprand res{nullptr};
+				JuaOprand res;
 				switch (instruction.oprand1.op_type)
 				{
 				case STRING:
@@ -269,9 +272,11 @@ public:
 					res.value = instruction.oprand1.value;
 					v_mem[instruction.result.get_sizet()] = std::move(res);
 					break;
-				case ADDR:
-					v_mem[instruction.result.get_sizet()] = std::move(v_mem[instruction.oprand1.get_sizet()]);
+				case ADDR: {
+					auto& tmp = v_mem[instruction.oprand1.get_sizet()];
+					v_mem[instruction.result.get_sizet()] = (tmp.op_type == VOID) ? std::move(tmp) : tmp;
 					break;
+				}
 				default:
 					break;
 				}

@@ -16,10 +16,16 @@ public:
 			break;
 		}
 		
+		JuaOprand ret {VOID , nullptr};
+		ret.destructor = [](JuaOprand*) {
+			std::cout << "cleaning ! \n";
+		};
+		
 
-		return { VOID , this , [](void* smth){
-			std::cout << "cleaning!\n";
-		} };
+
+
+
+		return ret;
 	}
 };
 
@@ -49,6 +55,9 @@ macro doz(z) {
 doz(hi);
 z = print(1);
 z = print(2);
+
+bye = hi;
+
 
 return hi;
 )");

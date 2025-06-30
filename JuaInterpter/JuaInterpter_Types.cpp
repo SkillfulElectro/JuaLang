@@ -1,22 +1,46 @@
 #include "JuaInterpter_Types.h"
 
-JuaOprand::JuaOprand() {}
-
-JuaOprand::JuaOprand(std::function<void(void*)> destructor) {
-	this->cleaner = cleaner;
-}
-
-JuaOprand::JuaOprand(DFActionType type , std::variant<size_t, double, std::string , void*> data ,std::function<void(void*)> destructor) {
-	op_type = type;
-	value = data;
-	cleaner = destructor;
+JuaOprand::JuaOprand(DFActionType op_type , std::variant<size_t, double, std::string, void *> value) {
+	this->op_type = op_type;
+	this->value = value;
 }
 
 JuaOprand::~JuaOprand() {
-	if (op_type == VOID) {
-		if (cleaner) {
-			cleaner(std::get<void*>(value));
-		}
+	if (destructor) {
+		destructor(this);
+	}
+}
+
+JuaOprand& JuaOprand::operator=(JuaOprand& other) {
+	if (copy) {
+		return copy(this , other);
+	} else {
+		op_type = other.op_type;
+		value = other.value;
+		copy = other.copy;
+		destructor = other.destructor;
+		move = other.move;
+	}
+}
+
+JuaOprand& JuaOprand::operator=(JuaOprand&& other) noexcept {
+	if (move) {
+		return move(this, std::move(other));
+	} else {
+		this->~JuaOprand();
+
+		op_type = other.op_type;
+		value = other.value;
+		copy = other.copy;
+		destructor = other.destructor;
+		move = other.move;
+
+		other.value = nullptr;
+		other.copy = nullptr;
+		other.destructor = nullptr;
+		other.move = nullptr;
+
+		return *this;
 	}
 }
 
