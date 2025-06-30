@@ -48,6 +48,7 @@ macro doz(z) {
 
 doz(hi);
 z = print(1);
+z = print(2);
 
 return hi;
 )");

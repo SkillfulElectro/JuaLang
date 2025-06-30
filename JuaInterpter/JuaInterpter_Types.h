@@ -4,27 +4,27 @@
 
 #include "JuaLangTypes.h"
 
-
 #include <variant>
 #include <string>
 #include <functional>
 #include <iostream>
 
-class JuaOprand {
+class JuaOprand
+{
 public:
 	// do not use it with void types , you will leak mem
 	JuaOprand();
 
-	JuaOprand(std::function<void(void*)> destructor);
+	JuaOprand(std::function<void(void *)> destructor);
 
-	JuaOprand(DFActionType type , 
-		std::variant<size_t, double, std::string , void*> data ,
-		std::function<void(void*)> destructor = nullptr );
+	JuaOprand(DFActionType type,
+			  std::variant<size_t, double, std::string, void *> data,
+			  std::function<void(void *)> destructor = nullptr);
 
 	DFActionType op_type;
-	std::variant<size_t, double, std::string , void*> value;
+	std::variant<size_t, double, std::string, void *> value;
 	// if set to void , it cleaner must be set or memory leak will happen
-	std::function<void(void*)> cleaner;
+	std::function<void(void *)> cleaner;
 
 	size_t get_sizet();
 
@@ -32,41 +32,63 @@ public:
 
 	std::string get_str();
 
-	void* get_void_ptr();
+	void *get_void_ptr();
 
 	~JuaOprand();
 
-  JuaOprand(const JuaOprand&) = default;
-  JuaOprand(JuaOprand&&) noexcept = default;
-  JuaOprand& operator=(const JuaOprand&) = default;
-  JuaOprand& operator=(JuaOprand&&) noexcept = default;
+	JuaOprand(const JuaOprand &) = default;
+	JuaOprand(JuaOprand &&) noexcept = default;
+	JuaOprand &operator=(const JuaOprand &other) = default;
+	JuaOprand &operator=(JuaOprand &&other) noexcept
+	{
+		if (op_type == VOID)
+		{
+			if (cleaner)
+			{
+				cleaner(std::get<void *>(value));
+			}
+		}
 
+		op_type = other.op_type;
+		cleaner = other.cleaner;
+		value = other.value;
+
+		other.cleaner = nullptr;
+		other.value = nullptr;
+
+		return *this;
+	};
 };
 
-enum JuaStackType {
+enum JuaStackType
+{
 	REF,
 	VALUE,
 };
 
-struct JuaStackVal {
+struct JuaStackVal
+{
 	JuaStackType type;
-	std::variant<JuaOprand, JuaOprand*> value;
+	std::variant<JuaOprand, JuaOprand *> value;
 
 	JuaOprand get_obj();
 
-	JuaOprand* get_ptr();
+	JuaOprand *get_ptr();
 };
 
-struct JuaInstruction {
+struct JuaInstruction
+{
 	DFActionType job;
 	JuaOprand oprand1;
 	JuaOprand oprand2;
 	JuaOprand result;
 
-	JuaInstruction() : oprand1{nullptr} , oprand2{nullptr} , result{nullptr} {}
+	JuaInstruction() : oprand1{nullptr}, oprand2{nullptr}, result{nullptr} {}
 };
 
 #include "DFMatcher.h"
-class JuaModule {};
+class JuaModule
+{
+};
 
 #endif // !JUA_OPRAND
