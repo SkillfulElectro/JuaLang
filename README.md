@@ -63,21 +63,17 @@ return x , 2 , ...;
 - for extending Jua , you have two ways :
 
 ### Jua Functions
-- as an example you can take a look at main.cpp file which shows how to use the below features
-- Jua has enough functionality to be as a basic bridge between your binary program and user
-- for creating functions in Jua first you need to include the Juax interpreter which lives in JuaLang header
-```c
-#include "JuaLang.h"
-```
-- after this you can now use JuaModule to create Jua functions which are callabe from Jua side , e.g.:
-- from v2.0.0 jua extension funcs use JuaStackVal , refer to releases for more details
-- from version v5.0.0 , JuaModule is acting like a placeholder of class type and must be inherited for example : 
+- you just have to define a function which matches the below function signature .
+- by using these functions , you can insert new functionalities to your Jua Interpreter and even types .
+for example : 
 ```cpp
-class zed : public JuaModule {
-public:
-	JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
+#include "JuaLang.h"
 
-		auto& oprand = *oprands[0].get_ptr();
+JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
+
+
+	for (size_t i = 0 ; i < oprands.size() ; ++i) {
+		auto& oprand = *oprands[i].get_ptr();
 
 		switch (oprand.op_type)
 		{
@@ -88,17 +84,27 @@ public:
 			std::cout << oprand.get_doub() << "\n";
 			break;
 		}
-
-
-		return { DOUBLE , 1.0 };
 	}
-};
+
+	
+	JuaOprand ret {VOID , nullptr};
+	ret.destructor = [](JuaOprand*) {
+		std::cout << "cleaning ! \n";
+	};
+	
+
+
+
+
+	return ret;
+}
 ```
 - and then you use it in your interpreter
 ```cpp
-        JuaInterpter instance;
-	zed test2;
-	instance.add_extension("print", &zed::jua_extension_func, &test2);
+
+	JuaLang cinstance;
+	JuaInterpter instance;
+	instance.add_extension("print", jua_extension_func);
 
 ```
 - the functions are now callable with that associated names

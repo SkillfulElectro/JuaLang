@@ -7,14 +7,8 @@
 #include "JuaInterpter_Types.h"
 #include <functional>
 
-typedef JuaOprand(JuaModule::* JuaFunc)(std::vector<JuaStackVal>& oprands);
+using JuaFunc = std::function<JuaOprand(std::vector<JuaStackVal>&)>;
 
-
-
-struct JuaExtension {
-	JuaFunc func;
-	JuaModule* obj;
-};
 
 class JuaLang;
 
@@ -29,19 +23,14 @@ class JuaInterpter {
 
 	std::unordered_map<size_t, JuaOprand> v_mem;
 
-	std::vector<JuaExtension> extensions;
+	std::vector<JuaFunc> extensions;
 
 	std::unordered_map<std::string, size_t> ext_table;
 
 	JuaOprand convert_DFMatcherRes(const DFMatcherRes& res) ;
 public:
-	template<typename T>
-	inline void add_extension(const std::string& name, JuaOprand(T::* func)(std::vector<JuaStackVal>&), JuaModule* obj) {
 
-		ext_table[name] = extensions.size();
-
-		extensions.push_back({ static_cast<JuaFunc>(func) , obj });
-	}
+	void add_extension(const std::string& name, JuaFunc func);
 
 	std::vector<JuaOprand> run_instructions();
 

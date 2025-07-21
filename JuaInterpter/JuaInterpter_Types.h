@@ -65,6 +65,10 @@ struct JuaInstruction
 };
 
 #include "DFMatcher.h"
+
+
+
+// void type will be converted to JuaModule
 class JuaModule
 {
 };

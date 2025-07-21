@@ -28,7 +28,6 @@ private:
 
 	JuaInterpter* interpter;
 
-	bool func_return = false;
 
 	/// <summary>
 	/// funcs

@@ -148,6 +148,13 @@ void JuaInterpter::insert_bytecode(const std::string& juax_code) {
     } while (res.status != END_OF_FILE);
 }
 
+void JuaInterpter::add_extension(const std::string& name, JuaFunc func) {
+
+    ext_table[name] = extensions.size();
+
+    extensions.push_back(func);
+}
+
 std::vector<JuaOprand> JuaInterpter::run_instructions() {
     std::vector<JuaOprand> rets;
 
@@ -199,7 +206,7 @@ std::vector<JuaOprand> JuaInterpter::run_instructions() {
             {
             case FUNC_IDENT: {
                 auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
-                v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
+                v_mem[instruction.result.get_sizet()] = func(input);
                 stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 
 
@@ -208,7 +215,7 @@ std::vector<JuaOprand> JuaInterpter::run_instructions() {
             }
             case ADDR: {
                 auto& func = extensions[instruction.oprand1.get_sizet()];
-                v_mem[instruction.result.get_sizet()] = (func.obj->*func.func)(input);
+                v_mem[instruction.result.get_sizet()] = func(input);
                 stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
 
                 break;

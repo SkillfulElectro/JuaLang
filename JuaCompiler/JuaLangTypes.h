@@ -41,6 +41,10 @@ enum DFActionType {
 	CONTINUE,
 	BREAK,
 
+	// new
+	DOT_OPERATOR,
+	IMPORT,
+
 	/// compile time lexer types
 	FUNC_ADDR,
 

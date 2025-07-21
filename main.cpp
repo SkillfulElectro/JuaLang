@@ -1,10 +1,10 @@
 #include "JuaLang.h"
 
-class zed : public JuaModule {
-public:
-	JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
+JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 
-		auto& oprand = *oprands[0].get_ptr();
+
+	for (size_t i = 0 ; i < oprands.size() ; ++i) {
+		auto& oprand = *oprands[i].get_ptr();
 
 		switch (oprand.op_type)
 		{
@@ -15,25 +15,25 @@ public:
 			std::cout << oprand.get_doub() << "\n";
 			break;
 		}
-		
-		JuaOprand ret {VOID , nullptr};
-		ret.destructor = [](JuaOprand*) {
-			std::cout << "cleaning ! \n";
-		};
-		
-
-
-
-
-		return ret;
 	}
-};
+
+	
+	JuaOprand ret {VOID , nullptr};
+	ret.destructor = [](JuaOprand*) {
+		std::cout << "cleaning ! \n";
+	};
+	
+
+
+
+
+	return ret;
+}
 
 int main() {
 	JuaLang cinstance;
 	JuaInterpter instance;
-	zed test2;
-	instance.add_extension("print", &zed::jua_extension_func, &test2);
+	instance.add_extension("print", jua_extension_func);
 	cinstance.set_interpter(&instance);
 
 	std::cout << "starting to compile \n";
@@ -53,7 +53,7 @@ macro doz(z) {
 }
 
 doz(hi);
-z = print(1);
+z = print(1 , 2 , 3 , 4 , 5);
 z = print(2);
 
 bye = hi;

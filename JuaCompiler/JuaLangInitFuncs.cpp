@@ -156,7 +156,6 @@ JuaLang::JuaLang()
 	macros_code.create_scope();
 	scopes.create_new_scope();
 	interpter = nullptr;
-	func_return = false;
 }
 
 void JuaLang::set_interpter(JuaInterpter *interpter)
