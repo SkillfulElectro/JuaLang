@@ -1,5 +1,18 @@
 #include "JuaLang.h"
 
+class TestVoid : public JuaVoidType {
+public:
+	JuaOprand run_func_by_symbol(const std::string& name 
+		, std::vector<JuaStackVal>& oprands) override {
+		
+
+		std::cout << "void type func \n";
+		JuaOprand ret {DOUBLE , 1.1};
+
+		return ret;
+	}
+};
+
 JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 
 
@@ -14,13 +27,16 @@ JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 		case DOUBLE:
 			std::cout << oprand.get_doub() << "\n";
 			break;
+		default:
+			continue;
+			break;
 		}
 	}
 
 	
-	JuaOprand ret {VOID , nullptr};
-	ret.destructor = [](JuaOprand*) {
-		std::cout << "cleaning ! \n";
+	JuaOprand ret {VOID , new TestVoid};
+	ret.destructor = [](JuaOprand* obj) {
+		delete obj->get_void_ptr();
 	};
 	
 
@@ -40,23 +56,9 @@ int main() {
 
 	std::string code = cinstance.compile(
 		R"(
-hi = 3;
+z = print(1);
 
-macro doz(z) {
-	hi = hi + z;
-
-	macro boz() {
-		hi = hi + 5;
-	}
-	
-	boz();
-}
-
-doz(hi);
-z = print(1 , 2 , 3 , 4 , 5);
-z = print(2);
-
-bye = hi;
+hi = z.smth() + 2;
 
 
 return hi;

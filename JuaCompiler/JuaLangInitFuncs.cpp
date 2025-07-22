@@ -38,6 +38,9 @@ void JuaLang::init_dfaction()
 	DFA n_func_handler;
 	this->add_special_dfa(MACRO_CALL_HANDLER, n_func_handler);
 
+	DFA dot_operator_handler;
+	this->add_special_dfa(DOT_OPERATOR_HANDLER , dot_operator_handler);
+
 	DFA func_handler;
 	this->add_special_dfa(FUNC_HANDLER, func_handler);
 
@@ -147,6 +150,7 @@ void JuaLang::init_lexer()
 	lexer.create_word_token("}", CLOSE_BRACE, false);
 	lexer.create_word_token(";", SEMICOLON, false);
 	lexer.create_word_token(",", CAMMA, false);
+	lexer.create_word_token("." , DOT_OPERATOR , false);
 }
 
 JuaLang::JuaLang()

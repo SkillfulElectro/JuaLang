@@ -72,6 +72,16 @@ DFActionFlow JuaLang::identer_action(
 		}
 	}
 
+	case DOT_OPERATOR : {
+		auto iden = stack.back();
+		auto addr = scopes.get_new_addr(get_dfval_str(iden.value));
+		stack.pop_back();
+		stack.push_back({ADDR , addr.addr});
+		stack.push_back({DOT_OPERATOR , "."});
+
+		return { DFACTION_GO_TO_SP_DFA , DOT_OPERATOR_HANDLER };
+	}
+
 	case ASSIGN: {
 		auto identi = stack.back();
 		stack.pop_back();
@@ -120,6 +130,21 @@ DFActionFlow JuaLang::identer_action(
 	}
 
 	return { DFACTION_SAFE , DFActionState(0) };
+}
+
+DFActionFlow JuaLang::dot_operator_handler_action(
+	size_t& index_in_tokens
+	, const std::vector<DFActionToken>& tokens
+	, bool& go_next_index) {
+
+	auto& token = tokens[index_in_tokens];
+	
+	switch (token.type)
+	{
+	case IDENT:
+		stack.push_back(token);
+		return {DFACTION_BACK_TO_PREV , IDENTER};
+	}
 }
 
 /// <summary>
@@ -282,18 +307,28 @@ DFActionFlow JuaLang::expr_action(
 		stack.pop_back();
 
 		go_next_index = false;
+		if (stack.back().type != DOT_OPERATOR) {
+			auto res = scopes.get_ident_name(get_dfval_str(iden.value));
 
-		auto res = scopes.get_ident_name(get_dfval_str(iden.value));
+			if (res.status == JuaScopeStatus::JSCOPE_NOT_FOUND) {
+				return { DFACTION_PANIC , DFActionState(0) };
+			}
 
-		if (res.status == JuaScopeStatus::JSCOPE_NOT_FOUND) {
-			return { DFACTION_PANIC , DFActionState(0) };
+			stack.push_back({
+				IDENT , res.ident_name
+				});
+		} else {
+			stack.push_back(iden);
 		}
 
-		stack.push_back({
-			IDENT , res.ident_name
-			});
-
 		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , EXPR_FUNC_ROUTER };
+	}
+
+	case DOT_OPERATOR : {
+		go_next_index = true;
+		stack.push_back({DOT_OPERATOR , "."});
+
+		return { DFACTION_GO_TO_SP_DFA , DOT_OPERATOR_HANDLER };
 	}
 
 	case OPERATOR: {
@@ -431,7 +466,7 @@ DFActionFlow JuaLang::expr_action(
 		}
 	}
 
-				 break;
+	break;
 	default: {
 		DFActionToken tmp_keeper;
 		auto top = stack.back();
@@ -504,6 +539,9 @@ DFActionFlow JuaLang::expr_ops_action(
 			break;
 		}
 	}
+
+
+
 	case OP_PARAN:
 		return { DFACTION_GO_TO_SP_DFA , EXPR_PARA };
 	case CONST_DOUBLE: {
@@ -527,6 +565,8 @@ DFActionFlow JuaLang::expr_ops_action(
 		break;
 	}
 	case IDENT: {
+		std::cout << "Token value : " <<get_dfval_str(token.value) << "\n";
+
 		std::string addr = scopes.get_new_addr(get_dfval_str(token.value)).addr;
 
 		stack.push_back({ ADDR , addr });
@@ -610,8 +650,35 @@ DFActionFlow JuaLang::func_handler_action(
 	{
 	case OP_PARAN:
 	{
-		stack.push_back({ OP_PARAN , 0.0 });
-		stack.push_back({ ASSIGN , "=" });
+		if (stack.size() >= 3) {
+			auto identer = stack.back();
+			stack.pop_back();
+			auto dot = stack.back();
+
+			if (dot.type == DOT_OPERATOR) {
+				stack.pop_back();
+
+				auto ident = stack.back();
+				stack.pop_back();
+
+				code << "push" << " " << get_dfval_str(ident.value) << " " << ";" << " " << ";";
+				bytecode.push_back(code.str());
+
+				stack.push_back(identer);
+				stack.push_back({ OP_PARAN , 1.0 });
+				stack.push_back({ ASSIGN , "=" });
+			} else {
+				stack.push_back(identer);
+
+				stack.push_back({ OP_PARAN , 0.0 });
+				stack.push_back({ ASSIGN , "=" });
+			}
+		} else {
+			stack.push_back({ OP_PARAN , 0.0 });
+			stack.push_back({ ASSIGN , "=" });
+		}
+
+
 
 		return { DFActionFlowCode::DFACTION_GO_TO_SP_DFA , EXPR_OPS };
 	}
@@ -661,11 +728,7 @@ DFActionFlow JuaLang::func_handler_action(
 			std::string func_name = get_dfval_str(identi.value);
 
 			if (interpter != nullptr) {
-				if (interpter->ext_table.find(func_name) == interpter->ext_table.end()) {
-					std::cout << "INVALID FUNC NAME PASSED !";
-					return { DFActionFlowCode::DFACTION_PANIC , DFActionState(0) };
-				}
-				else {
+				if (interpter->ext_table.find(func_name) != interpter->ext_table.end()) {
 					func_name = std::to_string(interpter->ext_table[func_name]);
 				}
 			}
@@ -691,11 +754,7 @@ DFActionFlow JuaLang::func_handler_action(
 			std::string func_name = get_dfval_str(identi.value);
 
 			if (interpter != nullptr) {
-				if (interpter->ext_table.find(func_name) == interpter->ext_table.end()) {
-					std::cout << "INVALID FUNC NAME PASSED !";
-					return { DFActionFlowCode::DFACTION_PANIC , DFActionState(0) };
-				}
-				else {
+				if (interpter->ext_table.find(func_name) != interpter->ext_table.end()) {
 					func_name = std::to_string(interpter->ext_table[func_name]);
 				}
 			}

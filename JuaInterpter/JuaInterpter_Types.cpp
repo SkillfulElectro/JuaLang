@@ -1,6 +1,6 @@
 #include "JuaInterpter_Types.h"
 
-JuaOprand::JuaOprand(DFActionType op_type , std::variant<size_t, double, std::string, void *> value) {
+JuaOprand::JuaOprand(DFActionType op_type , std::variant<size_t, double, std::string, JuaVoidType *> value) {
 	this->op_type = op_type;
 	this->value = value;
 }
@@ -56,8 +56,8 @@ std::string JuaOprand::get_str() {
 	return std::get<std::string>(value);
 }
 
-void* JuaOprand::get_void_ptr() {
-	return std::get<void*>(value);
+JuaVoidType* JuaOprand::get_void_ptr() {
+	return std::get<JuaVoidType*>(value);
 }
 
 

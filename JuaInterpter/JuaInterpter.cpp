@@ -201,13 +201,47 @@ std::vector<JuaOprand> JuaInterpter::run_instructions() {
         }
         case CALL: {
             std::vector<JuaStackVal> input(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+            stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+
+            
 
             switch (instruction.oprand1.op_type)
             {
             case FUNC_IDENT: {
-                auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
-                v_mem[instruction.result.get_sizet()] = func(input);
-                stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+
+
+                switch (input[0].type)
+                {
+                case REF:{
+                    JuaOprand* ptr = input[0].get_ptr();
+                    
+                    if (ptr->op_type == VOID) {
+                        JuaVoidType* func = ptr->get_void_ptr();
+                        v_mem[instruction.result.get_sizet()] = func->run_func_by_symbol(
+                            instruction.oprand1.get_str() , input);
+                    } else {
+                        auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
+                        v_mem[instruction.result.get_sizet()] = func(input);
+                    }
+                }
+                break;
+                
+                case VALUE: {
+                    JuaOprand val = input[0].get_obj();
+                    
+                    if (val.op_type == VOID) {
+                        JuaVoidType* func = val.get_void_ptr();
+                        v_mem[instruction.result.get_sizet()] = func->run_func_by_symbol(
+                            instruction.oprand1.get_str() , input);
+                    } else {
+                        auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
+                        v_mem[instruction.result.get_sizet()] = func(input);
+                    }
+                }
+                break;
+                }
+
+                
 
 
 
@@ -216,7 +250,7 @@ std::vector<JuaOprand> JuaInterpter::run_instructions() {
             case ADDR: {
                 auto& func = extensions[instruction.oprand1.get_sizet()];
                 v_mem[instruction.result.get_sizet()] = func(input);
-                stack.erase(stack.end() - instruction.oprand2.get_sizet(), stack.end());
+               
 
                 break;
             }

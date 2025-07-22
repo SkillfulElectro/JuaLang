@@ -9,11 +9,20 @@
 #include <functional>
 #include <iostream>
 
+class JuaOprand;
+struct JuaStackVal;
+
+class JuaVoidType
+{
+public:
+	virtual JuaOprand run_func_by_symbol(const std::string& , std::vector<JuaStackVal>&) = 0;
+};
+
 class JuaOprand
 {
 public:
 	DFActionType op_type;
-	std::variant<size_t, double, std::string, void *> value;
+	std::variant<size_t, double, std::string, JuaVoidType* > value;
 
 public:
 	std::function<void(JuaOprand *)> destructor = nullptr;
@@ -22,7 +31,7 @@ public:
 
 public:
 	JuaOprand() = default;
-	JuaOprand(DFActionType op_type , std::variant<size_t, double, std::string, void *> value);
+	JuaOprand(DFActionType op_type , std::variant<size_t, double, std::string, JuaVoidType *> value);
 	JuaOprand(const JuaOprand &) = default;
 	JuaOprand(JuaOprand &&) noexcept = default;
 
@@ -32,7 +41,7 @@ public:
 
 	std::string get_str();
 
-	void *get_void_ptr();
+	JuaVoidType* get_void_ptr();
 
 	~JuaOprand();
 
@@ -68,9 +77,6 @@ struct JuaInstruction
 
 
 
-// void type will be converted to JuaModule
-class JuaModule
-{
-};
+
 
 #endif // !JUA_OPRAND

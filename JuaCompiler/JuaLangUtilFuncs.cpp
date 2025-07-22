@@ -40,6 +40,8 @@ DFActionFlow JuaLang::action_function(
 		return expr_func_router_action(index_in_tokens, tokens, go_next_index);
 	case FUNC_HANDLER:
 		return func_handler_action(index_in_tokens, tokens, go_next_index);
+	case DOT_OPERATOR_HANDLER:
+		return dot_operator_handler_action(index_in_tokens, tokens, go_next_index);
 	case RETURN_HANDLER:
 		return return_handler_action(index_in_tokens, tokens, go_next_index);
 	case WHILE_HANDLER:

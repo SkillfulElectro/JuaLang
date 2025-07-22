@@ -92,6 +92,11 @@ private:
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
+	DFActionFlow dot_operator_handler_action(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index);
+
 
 	DFActionFlow return_handler_action(
 		size_t& index_in_tokens
