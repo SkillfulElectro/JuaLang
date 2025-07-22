@@ -27,6 +27,7 @@ target_include_directories(JuaLang
       ${CMAKE_CURRENT_SOURCE_DIR}/JuaCompiler
       ${CMAKE_CURRENT_SOURCE_DIR}/JuaInterpter
       ${CMAKE_CURRENT_SOURCE_DIR}/sys
+      ${CMAKE_CURRENT_SOURCE_DIR}/std
 )
 
 
