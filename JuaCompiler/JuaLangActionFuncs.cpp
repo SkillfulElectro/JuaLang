@@ -565,8 +565,6 @@ DFActionFlow JuaLang::expr_ops_action(
 		break;
 	}
 	case IDENT: {
-		std::cout << "Token value : " <<get_dfval_str(token.value) << "\n";
-
 		std::string addr = scopes.get_new_addr(get_dfval_str(token.value)).addr;
 
 		stack.push_back({ ADDR , addr });
