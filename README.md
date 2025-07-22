@@ -43,12 +43,15 @@ function func_name(args) {
 - all types of function calls are by reference
 ```c
 func_name(args ...);
+
+/*if x is JuaVoidType*/
+x.func_name(args ...);
 ```
 ```c
 hi = "string data type"
 numeric = 1.2 
 ```
-- Jua native inline functions does not return value so can't use them in expr , so zed here is Jua extension func
+- Jua native inline functions does not return value so can't use them in expr , so zed here is Jua func
 ```c
 /*EXPR*/
 hi = zed() + (4/2) * 3 ;
@@ -218,4 +221,3 @@ ret 1 ; ;
 - [x] bytecode runner
 - [x] JuaLang Extensions def in bytecode runner
 - [ ] code optimization
-
