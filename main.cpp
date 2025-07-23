@@ -1,20 +1,8 @@
 #include "JuaLang.h"
 #include "std/math/JuaStdMath.h"
 
-class TestVoid : public JuaVoidType {
-public:
-	JuaOprand run_func_by_symbol(const std::string& name 
-		, std::vector<JuaStackVal>& oprands) override {
-		
 
-		std::cout << "void type func \n";
-		JuaOprand ret {DOUBLE , 1.1};
-
-		return ret;
-	}
-};
-
-JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
+JuaOprand jua_print_func(std::vector<JuaStackVal>& oprands) {
 
 
 	for (size_t i = 0 ; i < oprands.size() ; ++i) {
@@ -31,10 +19,10 @@ JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 		switch (oprand->op_type)
 		{
 		case STRING:
-			std::cout << oprand->get_str() << "\n";
+			std::cout << oprand->get_str();
 			break;
 		case DOUBLE:
-			std::cout << oprand->get_doub() << "\n";
+			std::cout << oprand->get_doub();
 			break;
 		default:
 			continue;
@@ -42,11 +30,10 @@ JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 		}
 	}
 
+	std::cout << "\n";
+
 	
-	JuaOprand ret {VOID , new TestVoid};
-	ret.destructor = [](JuaOprand* obj) {
-		delete obj->get_void_ptr();
-	};
+	JuaOprand ret {VOID , nullptr};
 	
 
 
@@ -55,10 +42,11 @@ JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 	return ret;
 }
 
+
 int main() {
 	JuaLang cinstance;
 	JuaInterpter instance;
-	instance.add_extension("print", jua_extension_func);
+	instance.add_extension("print", jua_print_func);
 	instance.add_extension("import_math" , jua_std_math_importer);
 	cinstance.set_interpter(&instance);
 
@@ -68,12 +56,39 @@ int main() {
 		R"(
 math = import_math();
 
-if (math.equal(1.1 , 1.1)) {
-	print(math.pow(2 , 4));
+
+
+
+macro fib(index , ret) {
+	if (math.equal(index , 0)) {
+		ret = 0;
+	} else if (math.equal(index , 1)) {
+		ret = 1;
+	} else if (math.greater_than(index , 1)) {
+		first = 0;
+		sec = 1;
+
+
+		count = 0;
+		while (math.less_than(count , index)) {
+			tmp = first + sec;
+			first = sec;
+			sec = tmp;
+
+			count = count + 1;
+
+			print("first : " , first , " sec : " , sec , " count : " , count);
+		}
+
+		ret = first;
+	}
 }
 
 
-return 1.0;
+ret = 0;
+fib(3 , ret);
+
+return ret;
 )");
 	
 	std::cout << code << '\n';

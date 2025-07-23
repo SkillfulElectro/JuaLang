@@ -35,7 +35,8 @@ class JuaScope {
 	std::vector<size_t> removed_addrs;
 
 	bool func_style = false;
-	size_t func_style_start_ind = 0;
+	size_t func_style_scope_index = 0;
+	size_t func_style_start_addr = 0;
 public:
 	JuaScope();
 

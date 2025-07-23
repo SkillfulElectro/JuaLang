@@ -565,7 +565,9 @@ DFActionFlow JuaLang::expr_ops_action(
 		break;
 	}
 	case IDENT: {
+		
 		std::string addr = scopes.get_new_addr(get_dfval_str(token.value)).addr;
+
 
 		stack.push_back({ ADDR , addr });
 
@@ -1272,8 +1274,9 @@ DFActionFlow JuaLang::macro_def_handler_action(
 	{
 	case MACRO:
 	case FUNCTION:
-		scopes.create_new_scope();
 		scopes.activate_func_style();
+		scopes.create_new_scope();
+
 
 		stack.push_back({ FUNCTION , bytecode.size() });
 
@@ -1474,6 +1477,7 @@ DFActionFlow JuaLang::macro_call_handler_action(
 
 			auto& func = macros_code.get_by_key(get_dfval_str(expr_val.value));
 
+
 			std::unordered_map<std::string, std::string> addrs;
 
 			if (expr_vals.size() != func.paras_addrs.size()) {
@@ -1483,10 +1487,10 @@ DFActionFlow JuaLang::macro_call_handler_action(
 
 			for (size_t i{ 0 }, j{ expr_vals.size() - 1 }; i < expr_vals.size(); ++i, --j) {
 				addrs[func.paras_addrs[i]] = get_dfval_str(expr_vals[j].value);
-
 			}
 
 			auto instructions = comp_lexer.insert_bytecode(func.macro_code);
+
 
 
 			size_t func_start = bytecode.size();
@@ -1500,6 +1504,9 @@ DFActionFlow JuaLang::macro_call_handler_action(
 				switch (instruct.op_type)
 				{
 				case JUMP: {
+					instruction += instruct.value;
+					instruction += " ";
+
 					auto& val = instructions[i + 1];
 
 					val.value = std::to_string(std::stoull(val.value) + func_start);
@@ -1507,9 +1514,13 @@ DFActionFlow JuaLang::macro_call_handler_action(
 					break;
 				}
 				case JUMPF: {
+					instruction += instruct.value;
+					instruction += " ";
 					auto& val = instructions[i + 2];
 
+
 					val.value = std::to_string(std::stoull(val.value) + func_start);
+
 
 					break;
 				}
@@ -1539,6 +1550,8 @@ DFActionFlow JuaLang::macro_call_handler_action(
 				}
 			}
 
+
+
 		}
 		else {
 			auto expr_val = stack.back();
@@ -1565,6 +1578,9 @@ DFActionFlow JuaLang::macro_call_handler_action(
 				switch (instruct.op_type)
 				{
 				case JUMP: {
+					instruction += instruct.value;
+					instruction += " ";
+
 					auto& val = instructions[i + 1];
 
 					val.value = std::to_string(std::stoull(val.value) + func_start);
@@ -1572,6 +1588,9 @@ DFActionFlow JuaLang::macro_call_handler_action(
 					break;
 				}
 				case JUMPF: {
+					instruction += instruct.value;
+					instruction += " ";
+
 					auto& val = instructions[i + 2];
 
 					val.value = std::to_string(std::stoull(val.value) + func_start);
