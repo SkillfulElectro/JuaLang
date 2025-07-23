@@ -219,7 +219,6 @@ std::vector<JuaOprand> JuaInterpter::run_instructions() {
                         JuaVoidType* func = ptr->get_void_ptr();
                         v_mem[instruction.result.get_sizet()] = func->run_func_by_symbol(
                             instruction.oprand1.get_str() , input);
-
                     } else {
                         auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
                         v_mem[instruction.result.get_sizet()] = func(input);

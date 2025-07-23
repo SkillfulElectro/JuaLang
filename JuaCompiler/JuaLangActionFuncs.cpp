@@ -42,8 +42,6 @@ DFActionFlow JuaLang::start_action(
 		bytecode.push_back("");
 
 		break;
-	default:
-		break;
 	}
 
 	return { DFACTION_SAFE , DFActionState(0) };
@@ -145,6 +143,8 @@ DFActionFlow JuaLang::dot_operator_handler_action(
 		stack.push_back(token);
 		return {DFACTION_BACK_TO_PREV , IDENTER};
 	}
+
+	return {DFACTION_PANIC , DFActionState(0)};
 }
 
 /// <summary>

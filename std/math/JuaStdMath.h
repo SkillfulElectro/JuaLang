@@ -25,9 +25,13 @@ public:
                 tmp = params[idx].get_obj();
                 ptr = &tmp;
             }
-            if (ptr->op_type != DOUBLE)
-                throw std::invalid_argument("Argument is not a double");
-            return ptr->get_doub();
+            switch (ptr->op_type)
+            {
+            case DOUBLE:
+                return ptr->get_doub();
+            }   
+
+            return atof(ptr->get_str().c_str());       
         };
 
         double result = 0.0;
@@ -46,6 +50,7 @@ public:
                 if (params.size() != 3)
                     throw std::invalid_argument(name + " expects 2 arguments");
                 result = it2->second(get_double(1), get_double(2));
+
             }
             else {
                 throw std::invalid_argument("Unknown math function/operator: " + name);

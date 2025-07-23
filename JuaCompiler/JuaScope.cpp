@@ -66,23 +66,32 @@ JuaScopeRes JuaScope::get_ident_name(std::string addr_s) {
 }
 
 JuaScopeRes JuaScope::get_new_tmp() {
+	std::string addr;
+	if (!func_style) {
+		if (!removed_addrs.empty()) {
+			auto addr_res = removed_addrs.back();
+			removed_addrs.pop_back();
+			scopes.back().temp_addrs.push_back(addr_res);
 
-	if (!removed_addrs.empty()) {
-		auto addr = removed_addrs.back();
-		removed_addrs.pop_back();
-		scopes.back().temp_addrs.push_back(addr);
+			return{ JuaScopeStatus::JSCOPE_SUCCESS , std::to_string(addr_res) , "" };
+		}
 
-		return{ JuaScopeStatus::JSCOPE_SUCCESS , std::to_string(addr) , "" };
-	}
+		size_t addr_res = addr_counter++;
+		scopes.back().temp_addrs.push_back(addr_res);
 
-	size_t addr_res = addr_counter++;
-	scopes.back().temp_addrs.push_back(addr_res);
+		addr = std::to_string(addr_res);
+	} else {
+		size_t addr_res = addr_counter++;
+		scopes.back().temp_addrs.push_back(addr_res);
 
-	std::string addr = std::to_string(addr_res);
+		addr = std::to_string(addr_res);
 
-	if (func_style) {
+
 		addr = "$" + std::to_string(addr_res - func_style_start_addr);
 	}
+
+
+
 
 	return { JuaScopeStatus::JSCOPE_SUCCESS , addr , "" };
 }
