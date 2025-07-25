@@ -1,6 +1,7 @@
 #include "JuaLang.h"
 #include "std/math/JuaStdMath.h"
 #include "std/console/io.h"
+#include "std/type/jua_str.h"
 
 
 
@@ -11,6 +12,7 @@ int main() {
 	instance.add_extension("print", jua_print_func);
 	instance.add_extension("input" , jua_input_func);
 	instance.add_extension("import_math" , jua_std_math_importer);
+	instance.add_extension("import_str_util" , create_string_util);
 	cinstance.set_interpter(&instance);
 
 	std::cout << "starting to compile \n";
@@ -18,7 +20,7 @@ int main() {
 	std::string code = cinstance.compile(
 		R"(
 math = import_math();
-
+str_util = import_str_util();
 
 
 
@@ -55,6 +57,9 @@ macro fib(index , ret) {
 
 ret = 0;
 fib(input("insert index : ") , ret);
+
+print(str_util.get_from_index(123 , 0 ));
+print(str_util.len("ewufhwehf"));
 
 return ret;
 )");

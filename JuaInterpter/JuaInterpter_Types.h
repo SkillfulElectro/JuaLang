@@ -35,11 +35,11 @@ public:
 	JuaOprand(const JuaOprand &) = default;
 	JuaOprand(JuaOprand &&) noexcept = default;
 
-	size_t get_sizet();
+	size_t& get_sizet();
 
-	double get_doub();
+	double& get_doub();
 
-	std::string get_str();
+	std::string& get_str();
 
 	JuaVoidType* get_void_ptr();
 

@@ -14,45 +14,47 @@ JuaOprand::~JuaOprand() {
 JuaOprand& JuaOprand::operator=(JuaOprand& other) {
 	if (copy) {
 		return copy(this , other);
-	} else {
-		op_type = other.op_type;
-		value = other.value;
-		copy = other.copy;
-		destructor = other.destructor;
-		move = other.move;
-	}
+	} 
+
+	op_type = other.op_type;
+	value = other.value;
+	copy = other.copy;
+	destructor = other.destructor;
+	move = other.move;
+
+
+	return *this;
 }
 
 JuaOprand& JuaOprand::operator=(JuaOprand&& other) noexcept {
 	if (move) {
 		return move(this, std::move(other));
-	} else {
-		this->~JuaOprand();
+	} 
+	this->~JuaOprand();
 
-		op_type = other.op_type;
-		value = other.value;
-		copy = other.copy;
-		destructor = other.destructor;
-		move = other.move;
+	op_type = other.op_type;
+	value = other.value;
+	copy = other.copy;
+	destructor = other.destructor;
+	move = other.move;
 
-		other.value = nullptr;
-		other.copy = nullptr;
-		other.destructor = nullptr;
-		other.move = nullptr;
+	other.value = nullptr;
+	other.copy = nullptr;
+	other.destructor = nullptr;
+	other.move = nullptr;
 
-		return *this;
-	}
+	return *this;
 }
 
-size_t JuaOprand::get_sizet() {
+size_t& JuaOprand::get_sizet() {
 	return std::get<size_t>(value);
 }
 
-double JuaOprand::get_doub() {
+double& JuaOprand::get_doub() {
 	return std::get<double>(value);
 }
 
-std::string JuaOprand::get_str() {
+std::string& JuaOprand::get_str() {
 	return std::get<std::string>(value);
 }
 
