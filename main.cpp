@@ -2,6 +2,7 @@
 #include "std/math/JuaStdMath.h"
 #include "std/console/io.h"
 #include "std/type/jua_str.h"
+#include "std/structures/vector.h"
 
 
 
@@ -12,7 +13,8 @@ int main() {
 	instance.add_extension("print", jua_print_func);
 	instance.add_extension("input" , jua_input_func);
 	instance.add_extension("import_math" , jua_std_math_importer);
-	instance.add_extension("import_str_util" , create_string_util);
+	instance.add_extension("import_str_util" , jua_create_string_util);
+	instance.add_extension("create_vector" , jua_create_vector);
 	cinstance.set_interpter(&instance);
 
 	std::cout << "starting to compile \n";
@@ -60,6 +62,12 @@ fib(input("insert index : ") , ret);
 
 print(str_util.get_from_index(123 , 0 ));
 print(str_util.len("ewufhwehf"));
+alpha = "hi im xd";
+str_util.set_to_index(alpha , 1 , "b");
+print(alpha);
+
+vec = create_vector(1 , 2 , 3 , 4);
+print("vec size : " , vec.size());
 
 return ret;
 )");

@@ -9,14 +9,7 @@
 #include <functional>
 #include <iostream>
 
-class JuaOprand;
-struct JuaStackVal;
-
-class JuaVoidType
-{
-public:
-	virtual JuaOprand run_func_by_symbol(const std::string& , std::vector<JuaStackVal>&) = 0;
-};
+class JuaVoidType;
 
 class JuaOprand
 {
@@ -65,12 +58,28 @@ struct JuaStackVal
 	JuaOprand *get_ptr();
 };
 
+
+
 struct JuaInstruction
 {
 	DFActionType job;
 	JuaOprand oprand1;
 	JuaOprand oprand2;
 	JuaOprand result;
+};
+
+
+class JuaVoidType
+{
+public:
+	virtual JuaOprand run_func_by_symbol(const std::string& , std::vector<JuaStackVal>&) = 0;
+	virtual bool is_copyable() {
+		return false;
+	}
+
+	virtual JuaOprand copy() {
+		return {DOUBLE , 0.0};
+	}
 };
 
 #include "DFMatcher.h"

@@ -209,39 +209,42 @@ std::vector<JuaOprand> JuaInterpter::run_instructions() {
             {
             case FUNC_IDENT: {
 
-
-                switch (input[0].type)
-                {
-                case REF:{
-                    JuaOprand* ptr = input[0].get_ptr();
-                    
-                    if (ptr->op_type == VOID) {
-                        JuaVoidType* func = ptr->get_void_ptr();
-                        v_mem[instruction.result.get_sizet()] = func->run_func_by_symbol(
-                            instruction.oprand1.get_str() , input);
-                    } else {
-                        auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
-                        v_mem[instruction.result.get_sizet()] = func(input);
+                if (input.size() >= 1) {
+                    switch (input[0].type)
+                    {
+                    case REF:{
+                        JuaOprand* ptr = input[0].get_ptr();
+                        
+                        if (ptr->op_type == VOID) {
+                            JuaVoidType* func = ptr->get_void_ptr();
+                            v_mem[instruction.result.get_sizet()] = func->run_func_by_symbol(
+                                instruction.oprand1.get_str() , input);
+                        } else {
+                            auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
+                            v_mem[instruction.result.get_sizet()] = func(input);
+                        }
                     }
-                }
-                break;
-                
-                case VALUE: {
-                    JuaOprand val = input[0].get_obj();
+                    break;
                     
-                    if (val.op_type == VOID) {
-                        JuaVoidType* func = val.get_void_ptr();
-                        v_mem[instruction.result.get_sizet()] = func->run_func_by_symbol(
-                            instruction.oprand1.get_str() , input);
-                    } else {
-                        auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
-                        v_mem[instruction.result.get_sizet()] = func(input);
+                    case VALUE: {
+                        JuaOprand val = input[0].get_obj();
+                        
+                        if (val.op_type == VOID) {
+                            JuaVoidType* func = val.get_void_ptr();
+                            v_mem[instruction.result.get_sizet()] = func->run_func_by_symbol(
+                                instruction.oprand1.get_str() , input);
+                        } else {
+                            auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
+                            v_mem[instruction.result.get_sizet()] = func(input);
+                        }
                     }
-                }
-                break;
-                }
+                    break;
+                    }
 
-                
+                } else {
+                    auto& func = extensions[ext_table[instruction.oprand1.get_str()]];
+                    v_mem[instruction.result.get_sizet()] = func(input);
+                }
 
 
 
