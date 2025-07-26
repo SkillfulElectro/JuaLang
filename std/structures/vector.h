@@ -9,13 +9,23 @@
 class JuaStdVector : public JuaVoidType {
     std::vector<JuaOprand> vec;
 
+    void get_oprand(JuaStackVal& stack_val , JuaOprand*& main_place , JuaOprand& tmp) {
+        switch (stack_val.type) {
+        case REF :
+            main_place = stack_val.get_ptr();
+            return;
+        case VALUE:
+            tmp = stack_val.get_obj();
+            main_place = &tmp;
+            return;
+        }
+    }
 public:
-    // constructor: populate initial elements
     JuaStdVector(std::vector<JuaStackVal>& params) {
         push_back(params);
     }
 
-    // pop_back: pop N elements (default 1)
+
     JuaOprand pop_back(std::vector<JuaStackVal>& params) {
         size_t num_to_pop = 1;
 
@@ -56,35 +66,224 @@ public:
         return JuaOprand{DOUBLE , 1.0};
     }
 
-    // push_back: append all params, return count
+
     JuaOprand push_back(std::vector<JuaStackVal>& params) {
         double copied_count = 0.0;
-        for (auto& sv : params) {
-            if (sv.type == REF) {
-                JuaOprand* ptr = sv.get_ptr();
-                if (ptr->op_type == DOUBLE || ptr->op_type == STRING) {
+        for (size_t i{1}; i < params.size() ; ++i ) {
+            switch (params[i].type)
+            {
+            case REF: {
+                JuaOprand* ptr = params[i].get_ptr();
+                
+                switch (ptr->op_type)
+                {
+                case DOUBLE:
+                case STRING:
                     vec.push_back(*ptr);
-                } else if (ptr->op_type == VOID) {
-                    JuaVoidType* v = ptr->get_void_ptr();
-                    if (v->is_copyable())
-                        vec.push_back(std::move(v->copy()));
-                }
-            } else {
-                JuaOprand copy = sv.get_obj();
-                if (copy.op_type == DOUBLE || copy.op_type == STRING) {
-                    vec.push_back(copy);
-                } else if (copy.op_type == VOID) {
-                    JuaVoidType* v = copy.get_void_ptr();
-                    if (v->is_copyable())
-                        vec.push_back(std::move(v->copy()));
+                    break;
+                
+                case VOID:
+                {
+                    JuaVoidType* void_ptr = ptr->get_void_ptr();
+
+                    if (void_ptr->is_copyable()) {
+                        vec.push_back(std::move(void_ptr->copy()));
+                    }
+                }                    
                 }
             }
+                
+                break;
+            
+            case VALUE:{
+                JuaOprand ptr = params[i].get_obj();
+                
+                switch (ptr.op_type)
+                {
+                case DOUBLE:
+                case STRING:
+                    vec.push_back(ptr);
+                    break;
+                
+                case VOID:
+                {
+                    JuaVoidType* void_ptr = ptr.get_void_ptr();
+
+                    if (void_ptr->is_copyable()) {
+                        vec.push_back(std::move(void_ptr->copy()));
+                    }
+                }                    
+                }
+            }
+
+                break;
+            }
+        
             copied_count += 1.0;
         }
-        return JuaOprand{DOUBLE, copied_count};
+
+        return {DOUBLE , copied_count};
     }
 
-    // dispatch methods by name
+    JuaOprand get(std::vector<JuaStackVal>& params) {
+        if (params.size() < 2) {
+            return JuaOprand{DOUBLE , 0.0};
+        }
+
+        JuaOprand* ptr;
+        JuaOprand tmp;
+
+        switch (params[1].type) {
+        case REF:
+            ptr = params[1].get_ptr();
+            break;
+        case VALUE:
+            tmp = params[1].get_obj();
+            ptr = &tmp;
+            break;
+        }
+
+        size_t index;
+        switch (ptr->op_type)
+        {
+        case DOUBLE:
+            {
+                index = (size_t)ptr->get_doub();
+            }
+            break;
+        case STRING: 
+            {
+                index = (size_t)atof(ptr->get_str().c_str());
+            }
+            break;
+        default:
+            return {DOUBLE , 0.0};
+        }
+
+        return vec[index];
+    }
+
+    JuaOprand set(std::vector<JuaStackVal>& params) {
+        if (params.size() < 3) {
+            return JuaOprand{DOUBLE , 0.0};
+        }
+
+        JuaOprand* index;
+        JuaOprand tmp_index;
+
+        JuaOprand* value;
+        JuaOprand tmp_value;
+
+        get_oprand(params[1] , index , tmp_index);
+        get_oprand(params[2] , value , tmp_value);
+
+        size_t index_value;
+        switch (index->op_type)
+        {
+        case DOUBLE:
+            index_value = (size_t)index->get_doub();
+            break;
+        case STRING:
+            index_value = (size_t)atof(index->get_str().c_str());
+            break;
+        default:
+            return {DOUBLE , 0.0};
+        }
+
+        vec[index_value] = *value;
+
+        return {DOUBLE , 1.0};
+    }
+
+    JuaOprand resize(std::vector<JuaStackVal>& params) {
+        if (params.size() < 2) {
+            return {DOUBLE , 0.0};
+        }
+
+        JuaOprand* len;
+        JuaOprand tmp;
+
+        get_oprand(params[1] , len , tmp);
+
+        size_t new_len;
+        switch (len->op_type)
+        {
+        case DOUBLE:
+            new_len = (size_t)len->get_doub();
+            break;
+        case STRING:
+            new_len = (size_t)atof(len->get_str().c_str());
+            break;
+        default:
+            return {DOUBLE , 0.0};
+        }
+
+        vec.resize(new_len);
+
+        return {DOUBLE , 1.0};
+    }
+
+    JuaOprand insert(std::vector<JuaStackVal>& params) {
+        if (params.size() < 3) {
+            return {DOUBLE , 0.0};
+        }
+
+        JuaOprand* index;
+        JuaOprand tmp_index;
+
+        get_oprand(params[1] , index , tmp_index);
+
+        size_t index_value;
+        switch (index->op_type)
+        {
+        case DOUBLE:
+            index_value = (size_t)index->get_doub();
+            break;
+        case STRING:
+            index_value = (size_t)atof(index->get_str().c_str());
+            break;
+        default:
+            return {DOUBLE , 0.0};
+        }
+
+        JuaOprand* value;
+        JuaOprand tmp_value;
+
+        get_oprand(params[2] , value , tmp_value);
+
+        vec.insert(vec.begin() + index_value , *value);
+
+        return {DOUBLE , 1.0};
+    }
+
+    JuaOprand erase(std::vector<JuaStackVal>& params) {
+        if (params.size() < 2) {
+            return {DOUBLE , 0.0};
+        }
+
+        JuaOprand* index;
+        JuaOprand tmp_index;
+
+        get_oprand(params[1] , index , tmp_index);
+
+        size_t index_value;
+        switch (index->op_type)
+        {
+        case DOUBLE:
+            index_value = (size_t)index->get_doub();
+            break;
+        case STRING:
+            index_value = (size_t)atof(index->get_str().c_str());
+            break;
+        default:
+            return {DOUBLE , 0.0};
+        }
+
+        vec.erase(vec.begin() + index_value);
+
+        return {DOUBLE , 1.0};
+    }    
+
     JuaOprand run_func_by_symbol(const std::string& name, std::vector<JuaStackVal>& params) override {
         if (name == "size") {
             return JuaOprand{DOUBLE, static_cast<double>(vec.size())};
@@ -105,22 +304,22 @@ public:
             return JuaOprand{DOUBLE, 0.0};
         }
         if (name == "get") {
-            // todo
+            return get(params);
         }
         if (name == "set") {
-            // todo
+            return set(params);
         }
         if (name == "capacity") {
             return JuaOprand{DOUBLE, static_cast<double>(vec.capacity())};
         }
         if (name == "resize") {
-            // todo !
+            return resize(params);
         }
         if (name == "insert") {
-            // todo
+            return insert(params);
         }
         if (name == "erase") {
-            // todo
+            return erase(params);
         }
 
         if (name == "push_back") return push_back(params);
@@ -131,7 +330,7 @@ public:
     }
 };
 
-// factory function
+
 inline JuaOprand jua_create_vector(std::vector<JuaStackVal>& params) {
     JuaOprand ret{VOID, new JuaStdVector(params)};
     ret.destructor = [](JuaOprand* obj) { delete obj->get_void_ptr(); };
