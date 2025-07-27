@@ -2,10 +2,6 @@
 
 void JuaLang::init_dfaction()
 {
-	dfa[START][IDENT] = IDENTER;
-	dfa[START][CONTINUE] = START;
-	dfa[START][BREAK] = START;
-
 	this->add_special_dfa(START, dfa);
 
 	DFA macro_def_handler;
@@ -157,8 +153,7 @@ JuaLang::JuaLang()
 {
 	init_lexer();
 	init_dfaction();
-	macros_code.create_scope();
-	scopes.create_new_scope();
+
 	interpter = nullptr;
 }
 

@@ -77,12 +77,20 @@ DFActionFlow JuaLang::action_function(
 	return { DFACTION_SAFE , DFActionState(0) };
 }
 
-std::string JuaLang::compile(const std::string& buffer) {
+std::string JuaLang::compile(std::string& buffer) {
 	size_t index = 0;
 
 	DFMatcherRes res;
 
 	std::vector<DFActionToken> tokens;
+
+	size_t index_in_tks = 0;
+	auto ctx = this->get_default_context();
+
+	DFActionReturnVal comp_res;
+
+	macros_code.create_scope();
+	scopes.create_new_scope();
 
 	do {
 		res = lexer.get_token(buffer, index);
@@ -93,10 +101,25 @@ std::string JuaLang::compile(const std::string& buffer) {
 		tok.type = DFActionType(res.token_identifier);
 
 		tokens.push_back(tok);
+
+		comp_res = this->run_dfa_on(tokens, START , &index_in_tks , &ctx);
+
+		switch (comp_res.status)
+		{
+		case DFActionReturnCode::PANIC_WHILE_PROCESSING : 
+			std::cout << "COMPILATION FAILED !";
+		break;
+
+		case DFActionReturnCode::PUSH_TO_BUFFER :
+			// todo !
+		break;
+		}
+
 	} while (res.status != END_OF_FILE);
 
-
-	auto comp_res = this->run_dfa_on(tokens, START);
+	macros_code.destroy_scope();
+	scopes.destroy_scope();
+	
 
 	if (comp_res.status == FAILED_TO_DO_ALL_REDUCTIONS) {
 		std::cout << "COMPILATION FAILED !\n";

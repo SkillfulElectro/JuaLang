@@ -44,7 +44,7 @@ enum DFActionType {
 
 	// new
 	DOT_OPERATOR,
-	IMPORT,
+	PREPROCESSOR,
 
 	/// compile time lexer types
 	FUNC_ADDR,

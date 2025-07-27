@@ -110,34 +110,16 @@ public:
             return JuaOprand{DOUBLE, 0.0};
         }
         if (name == "get") {
-            if (params.size() < 2) return JuaOprand{DOUBLE, 0.0};
-            JuaOprand* key_ptr; JuaOprand tmp_key;
-            get_oprand(params[1], key_ptr, tmp_key);
-            auto it = map.find(*key_ptr);
-            if (it != map.end()) return it->second;
-            return JuaOprand{DOUBLE, 0.0};
+            // todo
         }
         if (name == "set") {
-            if (params.size() < 3) return JuaOprand{DOUBLE, 0.0};
-            JuaOprand *key_ptr, *val_ptr;
-            JuaOprand tmp_key, tmp_val;
-            get_oprand(params[1], key_ptr, tmp_key);
-            get_oprand(params[2], val_ptr, tmp_val);
-            map[*key_ptr] = *val_ptr;
-            return JuaOprand{DOUBLE, 1.0};
+            //todo
         }
         if (name == "erase") {
-            if (params.size() < 2) return JuaOprand{DOUBLE, 0.0};
-            JuaOprand* key_ptr; JuaOprand tmp_key;
-            get_oprand(params[1], key_ptr, tmp_key);
-            size_t count = map.erase(*key_ptr);
-            return JuaOprand{DOUBLE, static_cast<double>(count)};
+            // todo
         }
         if (name == "contains") {
-            if (params.size() < 2) return JuaOprand{DOUBLE, 0.0};
-            JuaOprand* key_ptr; JuaOprand tmp_key;
-            get_oprand(params[1], key_ptr, tmp_key);
-            return JuaOprand{DOUBLE, map.count(*key_ptr) ? 1.0 : 0.0};
+            //todo
         }
         return JuaOprand{DOUBLE, 0.0};
     }

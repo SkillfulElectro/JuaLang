@@ -13,6 +13,7 @@ enum DFActionReturnCode {
 	FAILED_TO_DO_ALL_REDUCTIONS,
 	PANIC_WHILE_PROCESSING,
 	NULL_MAIN_DFA_PASSED,
+	PUSH_TO_BUFFER,
 };
 
 enum DFActionFlowCode {
@@ -45,6 +46,7 @@ struct DFActionReturnVal {
 	DFActionReturnCode status;
 	std::vector<PrevDFAState> dfas;
 	size_t end_tokens_index;
+	std::string* str = nullptr;
 };
 
 struct DFActionContext {

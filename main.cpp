@@ -19,8 +19,7 @@ int main() {
 
 	std::cout << "starting to compile \n";
 
-	std::string code = cinstance.compile(
-		R"(
+	std::string jua_code = R"(
 math = import_math();
 str_util = import_str_util();
 
@@ -70,7 +69,8 @@ vec = create_vector(1 , 2 , 3 , 4);
 print("vec size : " , vec.size());
 
 return ret;
-)");
+)";
+	std::string code = cinstance.compile(jua_code);
 	
 	std::cout << code << '\n';
 

@@ -7,6 +7,8 @@
 #include "JuaInterpter.h"
 #include "JuaMacroScope.h"
 
+using Preprocessor = std::function<std::string(std::vector<std::string_view>&)>;
+
 class JuaLang : public DFAction {
 
 	/// <summary>
@@ -28,7 +30,7 @@ private:
 
 	JuaInterpter* interpter;
 
-
+	
 	/// <summary>
 	/// funcs
 	/// </summary>
@@ -186,7 +188,7 @@ public:
 
 	void unset_interpter();
 
-	std::string compile(const std::string& buffer);
+	std::string compile(std::string& buffer);
 };
 
 #endif // !JUALANG
