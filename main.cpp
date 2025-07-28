@@ -12,6 +12,8 @@
 int main() {
 	JuaLang cinstance;
 	cinstance.preprocessors["import"] = import;
+	cinstance.preprocessors["include"] = import;
+	
 	JuaInterpter instance;
 	instance.add_extension("print", jua_print_func);
 	instance.add_extension("input" , jua_input_func);
@@ -24,7 +26,7 @@ int main() {
 	std::cout << "starting to compile \n";
 
 	std::string jua_code = R"(
-#import("../main.jua");
+#include("../main.jua");
 )";
 	std::string code = cinstance.compile(jua_code);
 	
