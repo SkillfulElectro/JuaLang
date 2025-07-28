@@ -3,6 +3,7 @@
 #include "std/console/io.h"
 #include "std/type/jua_str.h"
 #include "std/structures/vector.h"
+#include "std/structures/hashmap.h"
 
 
 
@@ -14,7 +15,8 @@ int main() {
 	instance.add_extension("input" , jua_input_func);
 	instance.add_extension("import_math" , jua_std_math_importer);
 	instance.add_extension("import_str_util" , jua_create_string_util);
-	instance.add_extension("create_vector" , jua_create_vector);
+	instance.add_extension("vector" , jua_create_vector);
+	instance.add_extension("hashmap" , jua_create_hash_map);
 	cinstance.set_interpter(&instance);
 
 	std::cout << "starting to compile \n";
@@ -65,8 +67,14 @@ alpha = "hi im xd";
 str_util.set_to_index(alpha , 1 , "b");
 print(alpha);
 
-vec = create_vector(1 , 2 , 3 , 4);
+vec = vector();
 print("vec size : " , vec.size());
+
+map = hashmap("hi" , 1);
+map.set("bye" , 10);
+print("map size : " , map.size());
+
+print(map.get("bye"));
 
 return ret;
 )";

@@ -80,6 +80,22 @@ public:
 	virtual JuaOprand copy() {
 		return {DOUBLE , 0.0};
 	}
+
+	virtual bool is_equatable() {
+		return false;
+	}
+
+	virtual bool equals(JuaVoidType*) {
+		return false;
+	}
+
+	virtual bool is_hashable() {
+		return false;
+	}
+
+	virtual size_t hash() {
+		return 0;
+	}
 };
 
 #include "DFMatcher.h"

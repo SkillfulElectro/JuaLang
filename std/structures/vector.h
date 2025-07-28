@@ -22,7 +22,7 @@ class JuaStdVector : public JuaVoidType {
     }
 public:
     JuaStdVector(std::vector<JuaStackVal>& params) {
-        push_back(params);
+        push_back(params , 0);
     }
 
 
@@ -67,9 +67,9 @@ public:
     }
 
 
-    JuaOprand push_back(std::vector<JuaStackVal>& params) {
+    JuaOprand push_back(std::vector<JuaStackVal>& params , size_t start_index = 1) {
         double copied_count = 0.0;
-        for (size_t i{1}; i < params.size() ; ++i ) {
+        for (size_t i{start_index}; i < params.size() ; ++i ) {
             switch (params[i].type)
             {
             case REF: {
