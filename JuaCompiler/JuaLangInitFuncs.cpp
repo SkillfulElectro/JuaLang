@@ -60,6 +60,9 @@ void JuaLang::init_dfaction()
 	DFA expr_para;
 	this->add_special_dfa(EXPR_PARA, expr_para);
 
+	DFA preprocessor_handler;
+	this->add_special_dfa(PREPROCESSOR_HANDLER , preprocessor_handler);
+
 	new_dfa(&dfa);
 }
 
@@ -147,6 +150,8 @@ void JuaLang::init_lexer()
 	lexer.create_word_token(";", SEMICOLON, false);
 	lexer.create_word_token(",", CAMMA, false);
 	lexer.create_word_token("." , DOT_OPERATOR , false);
+
+	lexer.create_word_token("#" , HASHTAG , false);
 }
 
 JuaLang::JuaLang()
@@ -155,6 +160,7 @@ JuaLang::JuaLang()
 	init_dfaction();
 
 	interpter = nullptr;
+	preprocessing_time = false;
 }
 
 void JuaLang::set_interpter(JuaInterpter *interpter)

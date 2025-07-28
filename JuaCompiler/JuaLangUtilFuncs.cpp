@@ -70,8 +70,8 @@ DFActionFlow JuaLang::action_function(
 		return elif_chain_handler_action(index_in_tokens, tokens, go_next_index);
 	case ELSE_HANDLER:
 		return else_handler_action(index_in_tokens, tokens, go_next_index);
-	default:
-		break;
+	case PREPROCESSOR_HANDLER:
+		return preprocessor_handler(index_in_tokens, tokens, go_next_index);
 	}
 
 	return { DFACTION_SAFE , DFActionState(0) };
@@ -109,12 +109,13 @@ std::string JuaLang::compile(std::string& buffer) {
 		case DFActionReturnCode::PANIC_WHILE_PROCESSING : 
 			std::cout << "COMPILATION FAILED !";
 		break;
-
-		case DFActionReturnCode::PUSH_TO_BUFFER :
-			// todo !
-		break;
 		}
 
+		if (preprocessing_time) {
+			buffer.insert(index , preprocessed_value);
+			preprocessing_time = false;
+		}
+ 
 	} while (res.status != END_OF_FILE);
 
 	macros_code.destroy_scope();

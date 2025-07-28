@@ -4,17 +4,19 @@
 #include "std/type/jua_str.h"
 #include "std/structures/vector.h"
 #include "std/structures/hashmap.h"
+#include "std/preprocesses/util.h"
 
 
 
 
 int main() {
 	JuaLang cinstance;
+	cinstance.preprocessors["import"] = import;
 	JuaInterpter instance;
 	instance.add_extension("print", jua_print_func);
 	instance.add_extension("input" , jua_input_func);
-	instance.add_extension("import_math" , jua_std_math_importer);
-	instance.add_extension("import_str_util" , jua_create_string_util);
+	instance.add_extension("math" , jua_std_math_importer);
+	instance.add_extension("str" , jua_create_string_util);
 	instance.add_extension("vector" , jua_create_vector);
 	instance.add_extension("hashmap" , jua_create_hash_map);
 	cinstance.set_interpter(&instance);
@@ -22,61 +24,7 @@ int main() {
 	std::cout << "starting to compile \n";
 
 	std::string jua_code = R"(
-math = import_math();
-str_util = import_str_util();
-
-
-
-macro fib(index , ret) {
-
-
-	if (math.equal(index , 0)) {
-
-		ret = 0;
-	} else if (math.equal(index , 1)) {
-
-		ret = 1;
-	} else if (math.greater_than(index , 1)) {
-
-		first = 0;
-		sec = 1;
-
-
-		count = 0;
-		while (math.less_than(count , index)) {
-			tmp = first + sec;
-			first = sec;
-			sec = tmp;
-
-			count = count + 1;
-
-			print("first : " , first , " sec : " , sec , " count : " , count);
-		}
-
-		ret = first;
-	}
-}
-
-
-ret = 0;
-fib(input("insert index : ") , ret);
-
-print(str_util.get_from_index(123 , 0 ));
-print(str_util.len("ewufhwehf"));
-alpha = "hi im xd";
-str_util.set_to_index(alpha , 1 , "b");
-print(alpha);
-
-vec = vector();
-print("vec size : " , vec.size());
-
-map = hashmap("hi" , 1);
-map.set("bye" , 10);
-print("map size : " , map.size());
-
-print(map.get("bye"));
-
-return ret;
+#import("../main.jua");
 )";
 	std::string code = cinstance.compile(jua_code);
 	

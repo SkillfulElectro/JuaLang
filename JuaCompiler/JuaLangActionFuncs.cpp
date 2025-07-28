@@ -42,6 +42,8 @@ DFActionFlow JuaLang::start_action(
 		bytecode.push_back("");
 
 		break;
+	case HASHTAG:
+		return {DFACTION_GO_TO_SP_DFA , PREPROCESSOR_HANDLER};
 	}
 
 	return { DFACTION_SAFE , DFActionState(0) };
@@ -1632,5 +1634,35 @@ DFActionFlow JuaLang::macro_call_handler_action(
 	}
 	default:
 		break;
+	}
+}
+
+
+DFActionFlow JuaLang::preprocessor_handler(
+	size_t& index_in_tokens
+	, const std::vector<DFActionToken>& tokens
+	, bool& go_next_index) {
+	
+	auto& token = tokens[index_in_tokens];
+
+	switch (token.type)
+	{	
+	case SEMICOLON: {
+		
+		if (preprocessor_tokens[0].type == IDENT) {
+			preprocessing_time = true;
+			preprocessed_value = preprocessors[get_dfval_str(preprocessor_tokens[0].value)](preprocessor_tokens);
+		}
+		preprocessor_tokens.clear();
+
+		return {DFACTION_BACK_TO_PREV , DFActionState(0)};
+	}
+
+	break;
+
+	default:
+		preprocessor_tokens.push_back(token);	
+
+		return {DFACTION_DO_NOT_CHANGE_STATE , DFActionState(0)};
 	}
 }

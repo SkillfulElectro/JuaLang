@@ -7,7 +7,7 @@
 #include "JuaInterpter.h"
 #include "JuaMacroScope.h"
 
-using Preprocessor = std::function<std::string(std::vector<std::string_view>&)>;
+using Preprocessor = std::function<std::string(std::vector<DFActionToken>&)>;
 
 class JuaLang : public DFAction {
 
@@ -30,6 +30,12 @@ private:
 
 	JuaInterpter* interpter;
 
+	std::vector<DFActionToken> preprocessor_tokens;
+	bool preprocessing_time;
+	std::string preprocessed_value;
+public:
+	std::unordered_map<std::string , Preprocessor> preprocessors;
+	
 	
 	/// <summary>
 	/// funcs
@@ -171,6 +177,10 @@ private:
 		, const std::vector<DFActionToken>& tokens
 		, bool& go_next_index);
 
+	DFActionFlow preprocessor_handler(
+		size_t& index_in_tokens
+		, const std::vector<DFActionToken>& tokens
+		, bool& go_next_index);
 
 protected:
 
