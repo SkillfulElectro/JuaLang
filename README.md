@@ -5,74 +5,94 @@
 
 <h1 align="center">JuaLang</h1> 
 
-> this file will get updated as the language stablizes .
-
-> under massive updates .
-
-an experimental programming language which is written based on custom PDA style algorithm instead of algorithms like LALR(1) and etc
+- a programming language which does not try to rebuild the wheel based on custom algorithms which tries to be simple , fast , extensible and efficient.
 
 ## Why Jua?
-- the first reason is just for having fun ! :)
-- well when i use compiled languages , if i want to extend my final product and let users extend it more -> i need to embed python , js or wasm but well they have so much features which is not needed and we dont want to allow the extension system have them because its so much and etc , that time Jua comes in . Jua is not general propose programming language -> its designed to be a basic language with basic functionality well its functionality is extendable as much as you need !!!
+- fast runtime
+- simple syntax
+- extensible
+- memory safety at its core without garbage collection !
 
 ## Intro to Jua
-- Jua supports if , while , ( * , - , + , / ) operators , JuaModule functions
+- JuaLang has very similar syntax to other programming languages like JavaScript , the functionality of the below JuaLang codes are same as JavaScript
+
+- preprocessors : preprocessors are extensions to language syntax ! anything between # and ; is a code block which will be preprocessed .
+```c
+#import("main.jua");
+```
+
+- comments :
 ```c
 /*comment */
 ```
+
+- loops (only while loop is supported) :
 ```c
-while (EXPR) {
+while (condition) {
 continue;
 break;
-/*stmts*/
+/*code*/
 } 
 ```
-```c
-if (EXPR) {
-/*stmts*/
-} else if (EXPR) {
-/*stmts*/
-} else {
-/* stmts */
-}
-```
-- Jua has native functions , but Jua native functions because of the special behavior of return token does not return value
-- btw Jua functions are inlined and also before it be used , it must be declared
-```javascript
-/* inlined functions are called macro now with macro keyword for defining them . */
-function func_name(args) {
-/* stmts */
-}
-```
-- all types of function calls are by reference
-```c
-func_name(args ...);
 
-/*if x is JuaVoidType*/
+- if else chain :
+```c
+if (condition) {
+/*code*/
+} else if (condition) {
+/*code*/
+} else {
+/* code */
+}
+```
+
+- macro definition : 
+```JuaLang
+macro func_name(args) {
+/* code */
+}
+```
+in future updates , function keyword will be used for defining functions instead of macros .
+```javascript
+function func_name(args) {
+/* code */
+}
+```
+
+- function / macro calling :
+```cpp
+func_name(args ...);
+```
+- member function calling (only objects of JuaVoidType) :
+```cpp
+/*if x is JuaVoidType the below code is valid*/
 x.func_name(args ...);
 ```
+- variable definition : JuaLang only supports two data types numeric and strings ! 
 ```c
 hi = "string data type"
 numeric = 1.2 
 ```
-- Jua native inline functions does not return value so can't use them in expr , so zed here is Jua func
-```c
-/*EXPR*/
-hi = zed() + (4/2) * 3 ;
+- expressions : 
+```cpp
+/*you can use macro functions  like below because they do not return values !*/
+value = 2;
+squared = 0;
+square(value , squared);
+
+hi = zed() + (4/2) * 3 / (x.beta(3) - 6) + squared;
 ```
-- unlike other programming languages Jua does not return immimmediately after calling return , it just keeps the values to return when interpreter finishes running Juax code
-```jua
+- return : unlike other languages , in JuaLang return is global keyword which is used for adding values to final result of running code .
+```cpp
 return x , 2 , ...;
 ```
-- Jua only has this limited tools but how you can extend them?
 
-## Jua Extensions 
+## JuaLang : extensible language
 - for extending Jua , you have two ways :
 
-### Jua Functions
-- you just have to define a function which matches the below function signature .
-- by using these functions , you can insert new functionalities to your Jua Interpreter and even types .
-for example : 
+### JuaFunc
+- the easiest way to extend Jua is by using JuaFunc .
+- you only have to define a function with same signature as the below example and then in your code you can use it like other built-in functions . (unlike macros , they return values which)
 ```cpp
 #include "JuaLang.h"
 
@@ -106,16 +126,86 @@ JuaOprand jua_extension_func(std::vector<JuaStackVal>& oprands) {
 	return ret;
 }
 ```
-- and then you use it in your interpreter
+- below code adds print function to JuaLang interpreter : (it is suggested to use set_interpter on your JuaLang compiler instance before running compilation task !)
 ```cpp
 
 	JuaLang cinstance;
 	JuaInterpter instance;
 	instance.add_extension("print", jua_extension_func);
-
+	cinstance.set_interpter(&instance);
 ```
-- the functions are now callable with that associated names
-- also if your functions gonna send an object of the class to the Jua system , its possible by casting them to void* and return with VOID type . this type is only used for these kind of usages
+- also set_interpter is used to check function availability in the interpreter side .
+
+### JuaVoidType
+- if you want to add objects to JuaLang , you can create classes which inherit from JuaVoidType and override virtual functions  .
+- JuaVoidType class :
+```cpp
+class JuaVoidType
+{
+public:
+	// params[0] is JuaVoidType* which ref to class itself
+	virtual JuaOprand run_func_by_symbol(const std::string& , std::vector<JuaStackVal>&) = 0;
+	virtual bool is_copyable() {
+		return false;
+	}
+
+	virtual JuaOprand copy() {
+		return {DOUBLE , 0.0};
+	}
+
+	virtual bool is_equatable() {
+		return false;
+	}
+
+	virtual bool equals(JuaVoidType*) {
+		return false;
+	}
+
+	virtual bool is_hashable() {
+		return false;
+	}
+
+	virtual size_t hash() {
+		return 0;
+	}
+};
+```
+- after creating your class , now you can expose your class objects using JuaFunc .
+- for example below function is used to create instance of JuaStdMath class in JuaLang :
+```cpp
+// importer: pushes a void‑typed math object onto the stack
+inline JuaOprand jua_std_math_importer(std::vector<JuaStackVal>& oprands) {
+    JuaOprand ret{ VOID, new JuaStdMath };
+    ret.destructor = [](JuaOprand* obj) {
+        delete obj->get_void_ptr();
+    };
+    return ret;
+}
+```
+
+### Jua Preprocessors :
+- are same as JuaFunc but they run on compile time !
+- for example import is a preprocessor which is defined by Jua standard library :
+```cpp
+#import("../main.jua");
+```
+- you create them by defining a function in signature same as below function : 
+```cpp
+std::string import(const std::vector<DFActionToken>& tokens) {
+	// ...
+}
+```
+- by the way , it must return valid JuaLang code !
+- so overall it gets the tokens directly and creates special behavior for them in compile time !
+- you add your preprocessor to your compiler instance like below example :
+```cpp
+	JuaLang cinstance;
+	cinstance.preprocessors["import"] = import;
+	cinstance.preprocessors["include"] = import;
+```
+- now its possible to use them in JuaLang code .
+
+
 ### Jua compiler
 - Jua compiler for
 ```jua
@@ -145,69 +235,10 @@ ret 1 ; ;
 	JuaLang instance;
 	std::cout << instance.compile("hi = 10; while (hi - 1) { bye(hi); hi = hi - 1; } return hi;");
 ```
-- also you can enable func availability checking by :
-```c++
-	JuaLang cinstance;
-	JuaInterpter instance;
-	zed test2;
-	instance.add_extension("print", &zed::jua_extension_func, &test2);
-	cinstance.set_interpter(&instance);
-```
 - when you use set_interpter function , it produces faster Juax code for available interpreter , btw if you want to produce general Juax code do not use this function
 
-## sys
-- for using sys to create new programming language :
-### Lexer : DFMatcher.h
-- for using lexer you just create TokenDFA and pass them to it , the one which has the highest priority and accepts the highest len will be reported -> for each token it sees you have to recall its functions
-- you should take a look at its source code , i tried to explain what each func does in comments
-
-### compiler : DFAction.h
-- DFAction is modular dfa like system but it has some key differences which makes working with it really easy
-- you should inherit this class and create the main road the program will go like :
-```
-// example from JuaLang source code
-		dfa[START][IDENT] = IDENTER;
-		dfa[IDENTER][SEMICOLON] = START;
-
-		this->add_special_dfa(START, dfa);
-
-		DFA while_handler;
-		while_handler[WHILE_HANDLER][CLOSE_PARAN] = WHILE_SCOPE;
-		this->add_special_dfa(WHILE_HANDLER, while_handler);
-
-		DFA if_handler;
-		if_handler[IF_HANDLER][CLOSE_PARAN] = IF_SCOPE;
-		this->add_special_dfa(IF_HANDLER, if_handler);
-
-		DFA func_handler;
-		this->add_special_dfa(FUNC_HANDLER, func_handler);
-
-
-		DFA expr;
-		expr[EXPR][OPERATOR] = EXPR_OPS;
-		expr[EXPR_OPS][IDENT] = EXPR;
-		expr[EXPR_OPS][CLOSE_PARAN] = EXPR;
-		expr[EXPR_OPS][CONST_DOUBLE] = EXPR;
-		expr[EXPR_OPS][CONST_STRING] = EXPR;
-		this->add_special_dfa(EXPR_OPS, expr);
-
-		DFA ret;
-		this->add_special_dfa(RETURN_HANDLER, ret);
-		
-		DFA expr_para;
-		this->add_special_dfa(EXPR_PARA, expr_para);
-
-		/// adding the main road
-		new_dfa(&dfa);
-```
-- after defining the main part which the program must follow , you will create sub roads and connect them to it via action_function which you must override
-- try to create as many as sub road possible , it makes your job so much easier
-- you manage how DFAction is going to work with DFActionFlowCode and go_next_index variables which are going to be passed to your overrided action_function and many more ...
-- DFAction experienced some changes over the time refer to its source code for more details
-
 ## Contributions
-- after all hope Jua be useful embedable programming language and feel free to help me extend it more and in a better way
-- GoodLuck ! :)
+- all contributions are welcome .
 
 ## TODO!
 - [x] lexer init
@@ -225,3 +256,5 @@ ret 1 ; ;
 - [x] bytecode runner
 - [x] JuaLang Extensions def in bytecode runner
 - [ ] code optimization
+- [x] standard library
+- [x] preprocessors

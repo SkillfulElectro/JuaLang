@@ -26,7 +26,7 @@ int main() {
 	std::cout << "starting to compile \n";
 
 	std::string jua_code = R"(
-#include("../main.jua");
+#import("../main.jua");
 )";
 	std::string code = cinstance.compile(jua_code);
 	
