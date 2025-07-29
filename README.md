@@ -5,7 +5,7 @@
 
 <h1 align="center">JuaLang</h1> 
 
-- a programming language which does not try to rebuild the wheel based on custom algorithms which tries to be simple , fast , extensible and efficient with Goal of creating a language which can be anything from config language to general purpose programming language .
+- a programming language which does not try to rebuild the wheel , it uses the wheel . based on custom algorithms which tries to be simple , fast , extensible and efficient with Goal of creating a language which can be anything from config language to general purpose programming language .
 
 ## Why Jua?
 - fast runtime
