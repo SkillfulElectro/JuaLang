@@ -88,7 +88,7 @@ return x , 2 , ...;
 ```
 
 ## JuaLang : extensible language
-- for extending Jua , you have two ways :
+
 
 ### JuaFunc
 - the easiest way to extend Jua is by using JuaFunc .
