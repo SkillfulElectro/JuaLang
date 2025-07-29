@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 project(JuaSysTest)
 
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+
 
 
 option(BUILD_SHARED_LIBS "Build libraries as shared objects" ON)
@@ -13,22 +13,28 @@ option(BUILD_SHARED_LIBS "Build libraries as shared objects" ON)
 
 add_library(JuaLang
     SHARED
-    JuaCompiler/JuaScope.cpp 
-    JuaCompiler/JuaLangUtilFuncs.cpp
-    JuaCompiler/JuaLangInitFuncs.cpp
-    JuaCompiler/JuaLangActionFuncs.cpp
-    JuaCompiler/JuaMacroScope.cpp
-    JuaInterpter/JuaInterpter_Types.cpp
-    JuaInterpter/JuaInterpter.cpp
+    lib/JuaCompiler/JuaScope.cpp 
+    lib/JuaCompiler/JuaLangUtilFuncs.cpp
+    lib/JuaCompiler/JuaLangInitFuncs.cpp
+    lib/JuaCompiler/JuaLangActionFuncs.cpp
+    lib/JuaCompiler/JuaMacroScope.cpp
+    lib/JuaCompiler/JuaLangNativeFunc.cpp
+    lib/JuaInterpter/JuaInterpter_Types.cpp
+    lib/JuaInterpter/JuaInterpter.cpp
+    lib/std/preprocesses/util.cpp
+    lib/std/console/io.cpp
+    lib/std/type/jua_str.cpp
+    lib/std/math/JuaStdMath.cpp
+    lib/std/structures/vector.cpp
+    lib/std/structures/hashmap.cpp
 )
 
-target_include_directories(JuaLang
-    PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/JuaCompiler
-      ${CMAKE_CURRENT_SOURCE_DIR}/JuaInterpter
-      ${CMAKE_CURRENT_SOURCE_DIR}/sys
-      ${CMAKE_CURRENT_SOURCE_DIR}/std
-)
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+
+
+
 
 
 add_executable(JuaTest

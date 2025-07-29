@@ -5,13 +5,24 @@
 
 <h1 align="center">JuaLang</h1> 
 
-- a programming language which does not try to rebuild the wheel , it uses the wheel . based on custom algorithms which tries to be simple , fast , extensible and efficient with Goal of creating a language which can be anything from config language to general purpose programming language .
+-  a programming language which does not try to rebuild the wheel , it uses the wheel . based on custom algorithms which tries to be simple , fast , extensible and efficient with Goal of creating a language which can be anything from config language to general purpose programming language .
 
 ## Why Jua?
 - fast runtime
 - simple syntax
 - extensible
+- dependency free
 - memory safety at its core without garbage collection !
+
+## How to use
+- build :
+```sh
+git clone https://github.com/SkillfulElectro/JuaLang.git
+mkdir build
+cmake -S . -B build
+cmake --build build --config Release
+```
+- just include the JuaLang.h file from include directory and link your program to shared lib in the build directory .
 
 ## Intro to Jua
 - JuaLang has very similar syntax to other programming languages like JavaScript , the functionality of the below JuaLang codes are same as JavaScript
@@ -88,7 +99,7 @@ return x , 2 , ...;
 ```
 
 ## JuaLang : extensible language
-
+- for extending Jua , you have two ways :
 
 ### JuaFunc
 - the easiest way to extend Jua is by using JuaFunc .

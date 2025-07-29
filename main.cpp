@@ -1,10 +1,4 @@
 #include "JuaLang.h"
-#include "std/math/JuaStdMath.h"
-#include "std/console/io.h"
-#include "std/type/jua_str.h"
-#include "std/structures/vector.h"
-#include "std/structures/hashmap.h"
-#include "std/preprocesses/util.h"
 
 
 
