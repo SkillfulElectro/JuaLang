@@ -158,7 +158,7 @@ JuaOprand JuaStdVector::get(std::vector<JuaStackVal>& params) {
     }
 
 
-    return {vec[index].op_type , vec[index].value};
+    return vec[index];;
 }
 
 JuaOprand JuaStdVector::set(std::vector<JuaStackVal>& params) {
