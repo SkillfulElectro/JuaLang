@@ -109,6 +109,7 @@ JuaOprand JuaStdVector::push_back(std::vector<JuaStackVal>& params , size_t star
             break;
         }
     
+
         copied_count += 1.0;
     }
 
@@ -151,7 +152,13 @@ JuaOprand JuaStdVector::get(std::vector<JuaStackVal>& params) {
         return {DOUBLE , 0.0};
     }
 
-    return vec[index];
+
+    if (index >= vec.size()) {
+        return {DOUBLE , 0.0};
+    }
+
+
+    return {vec[index].op_type , vec[index].value};
 }
 
 JuaOprand JuaStdVector::set(std::vector<JuaStackVal>& params) {
@@ -181,7 +188,14 @@ JuaOprand JuaStdVector::set(std::vector<JuaStackVal>& params) {
         return {DOUBLE , 0.0};
     }
 
+    if (index_value >= vec.size()) {
+        return {DOUBLE , 0.0};
+    }
+
     vec[index_value] = *value;
+
+
+
 
     return {DOUBLE , 1.0};
 }

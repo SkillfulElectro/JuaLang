@@ -1,4 +1,4 @@
-math = math();
+math = import_math();
 str_util = str();
 
 
@@ -37,7 +37,11 @@ macro fib(index , ret) {
 ret = 0;
 fib(input("insert index : ") , ret);
 
-print(str_util.get_from_index(123 , 0 ));
+print("fib result : " , ret);
+
+
+print("tests : " );
+print( "index zero : " , str_util.get_from_index(123 , 0 ));
 print(str_util.len("ewufhwehf"));
 alpha = "hi im xd";
 str_util.set_to_index(alpha , 1 , "b");

@@ -182,6 +182,31 @@ public:
         return { STRING, std::string(1, c) };
     }
 
+    JuaOprand to_numeric(std::vector<JuaStackVal>& params) {
+        if (params.size() < 2) {
+            return {DOUBLE , 0.0};
+        }
+
+        JuaOprand* str;
+        JuaOprand tmp_str;
+        
+        get_oprand(params[1] , str , tmp_str);
+
+        switch (str->op_type)
+        {
+        case STRING:{
+            return {DOUBLE , atof(str->get_str().c_str())};
+        }
+        break;
+        
+        case DOUBLE:
+            return *str;
+
+        default:
+            return {DOUBLE , 0.0};
+        }
+    }
+
 
     JuaOprand run_func_by_symbol(const std::string& symbol 
         ,std::vector<JuaStackVal>& params) override {
@@ -192,6 +217,8 @@ public:
             return set_to_index(params);
         } else if (symbol == "get_from_index") {
             return get_from_index(params);
+        } else if (symbol == "to_numeric") {
+            return to_numeric(params);
         } else {
             return {DOUBLE , -1.1};
         }
