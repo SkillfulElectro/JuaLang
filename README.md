@@ -269,3 +269,4 @@ ret 1 ; ;
 - [ ] code optimization
 - [x] standard library
 - [x] preprocessors
+- [ ] error JuaVoidType impl
